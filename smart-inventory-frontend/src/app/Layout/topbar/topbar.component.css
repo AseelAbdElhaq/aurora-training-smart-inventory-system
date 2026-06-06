@@ -1,0 +1,144 @@
+.topbar {
+  height: 76px;
+  padding: 0 28px;
+  background: #ffffff;
+  border-bottom: 1px solid #e9e7df;
+  border-radius: 0 0 18px 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.top-left,
+.top-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.icon-btn {
+  width: 38px;
+  height: 38px;
+  border: none;
+  background: transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  color: #4b5563;
+  position: relative;
+
+  display: grid;
+  place-items: center;
+}
+
+.icon-btn:hover {
+  background: #f6f5f0;
+}
+
+.divider {
+  color: #c3c0b8;
+}
+
+.small-home {
+  font-size: 19px;
+  color: #9ca3af;
+}
+
+.search {
+  width: 310px;
+  height: 42px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid #e5e2da;
+  background: #fafafa;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.search input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #111827;
+}
+
+.search span {
+  color: #6b7280;
+}
+
+.notification small {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+
+  background: #f7d37b;
+  color: #111827;
+
+  display: grid;
+  place-items: center;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.profile {
+  min-width: 190px;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 6px 10px;
+  border-radius: 16px;
+}
+
+.profile:hover {
+  background: #f8f6ef;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+
+  background: #fff1c7;
+  color: #111827;
+
+  display: grid;
+  place-items: center;
+
+  font-weight: 800;
+  font-size: 16px;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+  flex: 1;
+}
+
+.profile-info strong {
+  font-size: 14px;
+  color: #111827;
+  white-space: nowrap;
+}
+
+.profile-info span {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #8b8f97;
+  white-space: nowrap;
+}
+
+.profile > .material-symbols-rounded {
+  font-size: 20px;
+  color: #6b7280;
+}

@@ -1,0 +1,35 @@
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-logo">I</div>
+
+    <div class="brand-text">
+      <h2>inventra</h2>
+      <p>Smart Inventory</p>
+    </div>
+  </div>
+
+  <nav class="menu">
+    @for (item of menu; track item.label) {
+      @if (canShow(item)) {
+        <a
+          class="menu-item"
+          [routerLink]="item.route"
+          routerLinkActive="active"
+        >
+          <span class="material-symbols-rounded menu-icon">
+            {{ item.icon }}
+          </span>
+
+          <span class="menu-label">
+            {{ item.label }}
+          </span>
+        </a>
+      }
+    }
+  </nav>
+
+  <button class="logout-btn" (click)="logout()">
+    <span class="material-symbols-rounded">logout</span>
+    <span>Logout</span>
+  </button>
+</aside>

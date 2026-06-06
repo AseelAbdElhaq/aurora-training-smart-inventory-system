@@ -1,0 +1,16 @@
+<div class="stat-card">
+  <div class="card-icon">
+    <span class="material-symbols-rounded">
+      {{ icon }}
+    </span>
+  </div>
+
+  <div>
+    <p>{{ title }}</p>
+    <h3>{{ value }}</h3>
+
+    <small [class.down]="status === 'down'">
+      {{ change }} from last month
+    </small>
+  </div>
+</div>

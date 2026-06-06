@@ -1,0 +1,81 @@
+<div class="login-page">
+
+  <div class="login-shell">
+
+    <div class="login-left">
+
+      <div class="brand-pill">
+        Smart Inventory
+      </div>
+
+      <div class="form-content">
+
+        <h1>Login to your account</h1>
+
+        <p>
+          Manage products, stock, warehouses, suppliers, and orders.
+        </p>
+
+        <label>Email</label>
+        <input
+          type="email"
+          placeholder="Enter your email"
+          [(ngModel)]="email"
+        />
+
+        <label>Password</label>
+        <input
+          type="password"
+          placeholder="Enter your password"
+          [(ngModel)]="password"
+        />
+
+        @if (errorMessage) {
+          <div class="error">
+            {{ errorMessage }}
+          </div>
+        }
+
+        <button (click)="login()">
+          Login
+        </button>
+
+      </div>
+
+      <div class="bottom-text">
+        Inventory & Warehouse Management System
+      </div>
+
+    </div>
+
+    <div class="login-right">
+
+      <img
+        src="assets/images/inventory-login.png"
+        alt="Inventory warehouse"
+      />
+
+      <div class="floating-card top-card">
+        <strong>Low Stock Alert</strong>
+        <span>12 products need restocking</span>
+      </div>
+
+      <div class="floating-card bottom-card">
+        <strong>Today Orders</strong>
+        <span>24 orders processed</span>
+      </div>
+
+      <div class="stats-row">
+        @for (day of ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']; track day) {
+          <div>
+            <span>{{ day }}</span>
+            <b>{{ 20 + $index * 3 }}</b>
+          </div>
+        }
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

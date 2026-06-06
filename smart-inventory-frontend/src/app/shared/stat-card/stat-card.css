@@ -1,0 +1,46 @@
+.stat-card {
+  min-height: 96px;
+  padding: 18px;
+  border-radius: 17px;
+  background: #ffffff;
+  border: 1px solid #e9e7df;
+  box-shadow: 0 12px 32px rgba(31, 41, 55, 0.04);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.card-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
+  background: #f6f5f0;
+  display: grid;
+  place-items: center;
+  color: #6b7280;
+}
+
+.card-icon span {
+  font-size: 26px;
+}
+
+p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+h3 {
+  margin: 8px 0 6px;
+  font-size: 28px;
+  letter-spacing: -1px;
+}
+
+small {
+  color: #3ca36d;
+  font-size: 12px;
+}
+
+small.down {
+  color: #e2584f;
+}

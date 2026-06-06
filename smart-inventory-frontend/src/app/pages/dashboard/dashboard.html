@@ -1,0 +1,151 @@
+<section class="dashboard">
+  <div class="dashboard-header">
+    <div>
+      <p class="welcome">Welcome back, Admin 👋</p>
+      <h1>Overview</h1>
+      <p class="subtitle">
+        Track inventory and monitor your business.
+      </p>
+    </div>
+
+    <button class="date-btn">
+      <span class="material-symbols-rounded">calendar_month</span>
+      June 6, 2026 - June 6, 2026
+      <span class="material-symbols-rounded">keyboard_arrow_down</span>
+    </button>
+  </div>
+
+  <div class="cards">
+    @for (card of cards; track card.title) {
+      <app-stat-card
+        [title]="card.title"
+        [value]="card.value"
+        [icon]="card.icon"
+        [change]="card.change"
+        [status]="card.status">
+      </app-stat-card>
+    }
+  </div>
+
+  <div class="main-grid">
+    <div class="panel overview-panel">
+      <div class="panel-header">
+        <h3>Inventory Overview</h3>
+
+        <button>This Week</button>
+      </div>
+
+      <div class="area-chart">
+        <div class="grid-lines"></div>
+
+        <svg viewBox="0 0 700 240" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="areaFill" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="#f7d37b" stop-opacity="0.6" />
+              <stop offset="100%" stop-color="#f7d37b" stop-opacity="0.05" />
+            </linearGradient>
+          </defs>
+
+          <path
+            d="M0,180 L100,130 L200,155 L300,120 L400,90 L500,115 L600,80 L700,105 L700,240 L0,240 Z"
+            fill="url(#areaFill)"
+          />
+
+          <path
+            d="M0,180 L100,130 L200,155 L300,120 L400,90 L500,115 L600,80 L700,105"
+            fill="none"
+            stroke="#f2c45f"
+            stroke-width="3"
+          />
+        </svg>
+
+        <div class="days">
+          <span>Mon</span>
+          <span>Tue</span>
+          <span>Wed</span>
+          <span>Thu</span>
+          <span>Fri</span>
+          <span>Sat</span>
+          <span>Sun</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel status-panel">
+      <h3>Stock Status</h3>
+
+      <div class="status-content">
+        <div class="donut">
+          <strong>78%</strong>
+          <span>Healthy</span>
+        </div>
+
+        <div class="legend">
+          <p><span class="dot green"></span> In Stock <b>78%</b></p>
+          <p><span class="dot yellow"></span> Low Stock <b>15%</b></p>
+          <p><span class="dot red"></span> Out of Stock <b>7%</b></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel activities-panel">
+      <div class="panel-header">
+        <h3>Recent Activities</h3>
+        <button>View all</button>
+      </div>
+
+      <div class="activity-list">
+        @for (activity of activities; track activity.title) {
+          <div class="activity">
+            <div class="activity-icon">
+              <span class="material-symbols-rounded">{{ activity.icon }}</span>
+            </div>
+
+            <div>
+              <strong>{{ activity.title }}</strong>
+              <p>{{ activity.time }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="panel products-panel">
+      <div class="panel-header">
+        <h3>Top Products</h3>
+        <button>View all</button>
+      </div>
+
+      <div class="product-list">
+        @for (product of bestProducts; track product.name) {
+          <div class="product">
+            <div class="product-img">
+              <span class="material-symbols-rounded">inventory_2</span>
+            </div>
+
+            <div>
+              <strong>{{ product.name }}</strong>
+              <p>{{ product.sold }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="panel ai-panel">
+      <h3>
+        <span class="material-symbols-rounded">auto_awesome</span>
+        AI Insights
+      </h3>
+
+      <p>
+        Increase stock for Wireless Earbuds Pro by 20%.
+      </p>
+
+      <button>
+        View Insight
+        <span class="material-symbols-rounded">arrow_forward</span>
+      </button>
+    </div>
+  </div>
+</section>
