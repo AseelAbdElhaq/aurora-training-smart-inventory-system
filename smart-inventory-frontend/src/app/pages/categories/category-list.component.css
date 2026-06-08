@@ -1,0 +1,165 @@
+.categories-page {
+  padding: 6px 4px 80px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.page-label {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 900;
+  color: #b98200;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 36px;
+  font-weight: 900;
+  color: #111827;
+}
+
+.page-subtitle {
+  margin: 10px 0 0;
+  color: #6b7280;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.primary-btn {
+  height: 46px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 14px;
+  background: #111827;
+  color: #ffffff;
+  font-weight: 900;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.categories-card {
+  background: #ffffff;
+  border: 1px solid #ebe7df;
+  border-radius: 22px;
+  padding: 22px;
+  box-shadow: 0 10px 35px rgba(15, 23, 42, 0.04);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.search-box {
+  width: 340px;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid #e5e1d8;
+  border-radius: 14px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.search-box input {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-weight: 700;
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.category-card {
+  min-height: 120px;
+  padding: 18px;
+  border: 1px solid #eee7da;
+  border-radius: 18px;
+  background: #fbf8f1;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.category-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 15px;
+  background: #f4ecd6;
+  color: #b98200;
+  display: grid;
+  place-items: center;
+}
+
+.category-info {
+  flex: 1;
+}
+
+.category-info h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 900;
+  color: #111827;
+}
+
+.category-info p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 11px;
+  background: #ffffff;
+  color: #374151;
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.icon-btn.danger {
+  color: #dc2626;
+}
+
+.empty-message {
+  color: #6b7280;
+  font-weight: 800;
+}
+
+@media (max-width: 850px) {
+  .category-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .search-box {
+    width: 100%;
+  }
+}

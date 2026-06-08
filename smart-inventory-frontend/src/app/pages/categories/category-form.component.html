@@ -1,0 +1,49 @@
+<section class="category-form-page">
+  @if (canManage()) {
+    <div class="page-header">
+      <div>
+        <p class="page-label">Categories</p>
+        <h1>{{ categoryId ? 'Edit Category' : 'Add Category' }}</h1>
+        <p class="page-subtitle">
+          Create categories for laptops, mobiles, and accessories.
+        </p>
+      </div>
+
+      <a routerLink="/categories" class="outline-btn">
+        Category List
+      </a>
+    </div>
+
+    <form class="form-card" (ngSubmit)="saveCategory()">
+      <label>
+        Category Name
+        <input
+          type="text"
+          name="categoryName"
+          [(ngModel)]="category.categoryName"
+          placeholder="Example: Laptops"
+          required
+        />
+      </label>
+
+      <label>
+        Description
+        <textarea
+          name="description"
+          [(ngModel)]="category.description"
+          placeholder="Write category description...">
+        </textarea>
+      </label>
+
+      <button class="submit-btn" type="submit">
+        {{ categoryId ? 'Update Category' : 'Save Category' }}
+      </button>
+    </form>
+  } @else {
+    <div class="no-access">
+      <h2>Access Denied</h2>
+      <p>You do not have permission to manage categories.</p>
+      <a routerLink="/categories">Back to categories</a>
+    </div>
+  }
+</section>

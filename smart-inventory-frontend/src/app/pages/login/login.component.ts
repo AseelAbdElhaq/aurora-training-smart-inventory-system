@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../core/services/auth.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -10,7 +10,8 @@ import { AuthService } from '../../core/services/auth.service';
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
-export class Login {
+export class LoginComponent {
+
   email = '';
   password = '';
   errorMessage = '';
@@ -21,6 +22,7 @@ export class Login {
   ) {}
 
   login(): void {
+
     this.errorMessage = '';
 
     if (!this.email || !this.password) {

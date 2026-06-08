@@ -1,12 +1,26 @@
 import { Component, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 
 type Role =
   | 'ADMIN'
   | 'INVENTORY_MANAGER'
   | 'WAREHOUSE_EMPLOYEE'
   | 'PURCHASING_MANAGER';
+
+type ChildMenuItem = {
+  label: string;
+  icon: string;
+  route: string;
+};
+
+type MenuItem = {
+  label: string;
+  icon: string;
+  route?: string;
+  roles: Role[];
+  children?: ChildMenuItem[];
+};
 
 @Component({
   selector: 'app-sidebar',
@@ -18,32 +32,151 @@ type Role =
 export class SidebarComponent {
   userRole: Role = 'ADMIN';
 
-  menu = [
-    { label: 'Dashboard', icon: 'dashboard', route: '/dashboard', roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE', 'PURCHASING_MANAGER'] },
-    { label: 'Products', icon: 'inventory_2', route: '/products', roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE', 'PURCHASING_MANAGER'] },
-    { label: 'Warehouses', icon: 'warehouse', route: '/warehouses', roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE', 'PURCHASING_MANAGER'] },
-    { label: 'Stock', icon: 'assignment', route: '/stock', roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE', 'PURCHASING_MANAGER'] },
-    { label: 'Stock Movements', icon: 'sync_alt', route: '/stock-movements', roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE', 'PURCHASING_MANAGER'] },
-    { label: 'Suppliers', icon: 'local_shipping', route: '/suppliers', roles: ['ADMIN', 'PURCHASING_MANAGER'] },
-    { label: 'Purchase Orders', icon: 'description', route: '/purchase-orders', roles: ['ADMIN', 'INVENTORY_MANAGER', 'PURCHASING_MANAGER'] },
-    { label: 'Sales Orders', icon: 'shopping_cart', route: '/sales-orders', roles: ['ADMIN', 'INVENTORY_MANAGER'] },
-    { label: 'Alerts', icon: 'notifications', route: '/alerts', roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE', 'PURCHASING_MANAGER'] },
-    { label: 'Reports', icon: 'bar_chart', route: '/reports', roles: ['ADMIN', 'INVENTORY_MANAGER', 'PURCHASING_MANAGER'] },
-    { label: 'AI Insights', icon: 'auto_awesome', route: '/ai-insights', roles: ['ADMIN', 'INVENTORY_MANAGER', 'PURCHASING_MANAGER'] },
-    { label: 'Users', icon: 'group', route: '/users', roles: ['ADMIN'] },
-    { label: 'Settings', icon: 'settings', route: '/settings', roles: ['ADMIN'] }
+  openedMenu = '';
+
+  menu: MenuItem[] = [
+    {
+      label: 'Home',
+      icon: 'home',
+      route: '/dashboard',
+      roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE', 'PURCHASING_MANAGER']
+    },
+    {
+      label: 'Product',
+      icon: 'inventory_2',
+      roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE', 'PURCHASING_MANAGER'],
+      children: [
+        {
+          label: 'Add Product',
+          icon: 'add_box',
+          route: '/products/add'
+        },
+        {
+          label: 'Product List',
+          icon: 'format_list_bulleted',
+          route: '/products'
+        }
+      ]
+    },
+    {
+      label: 'Category',
+      icon: 'category',
+      roles: ['ADMIN', 'INVENTORY_MANAGER'],
+      children: [
+        {
+          label: 'Add Category',
+          icon: 'add_box',
+          route: '/categories/add'
+        },
+        {
+          label: 'Category List',
+          icon: 'format_list_bulleted',
+          route: '/categories'
+        }
+      ]
+    },
+    {
+      label: 'Dashboard Analytics',
+      icon: 'dashboard',
+      route: '/dashboard-analytics',
+      roles: ['ADMIN', 'INVENTORY_MANAGER']
+    },
+    {
+      label: 'Stock',
+      icon: 'assignment',
+      route: '/stock',
+      roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE']
+    },
+    {
+      label: 'Warehouses',
+      icon: 'warehouse',
+      route: '/warehouses',
+      roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE']
+    },
+    {
+      label: 'Suppliers',
+      icon: 'local_shipping',
+      route: '/suppliers',
+      roles: ['ADMIN', 'PURCHASING_MANAGER']
+    },
+    {
+      label: 'Purchase Orders',
+      icon: 'description',
+      route: '/purchase-orders',
+      roles: ['ADMIN', 'INVENTORY_MANAGER', 'PURCHASING_MANAGER']
+    },
+    {
+      label: 'Sales Orders',
+      icon: 'shopping_cart',
+      route: '/sales-orders',
+      roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE']
+    },
+    {
+      label: 'Reports',
+      icon: 'bar_chart',
+      route: '/reports',
+      roles: ['ADMIN', 'INVENTORY_MANAGER', 'PURCHASING_MANAGER']
+    },
+    {
+      label: 'AI Insights',
+      icon: 'auto_awesome',
+      route: '/ai-insights',
+      roles: ['ADMIN', 'INVENTORY_MANAGER']
+    },
+    {
+      label: 'Users',
+      icon: 'group',
+      route: '/users',
+      roles: ['ADMIN']
+    },
+    {
+      label: 'Settings',
+      icon: 'settings',
+      route: '/settings',
+      roles: ['ADMIN']
+    }
   ];
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private router: Router
+  ) {
     if (isPlatformBrowser(this.platformId)) {
-      this.userRole = (localStorage.getItem('role') || 'ADMIN') as Role;
+      const savedRole = localStorage.getItem('role') as Role | null;
+
+      if (savedRole) {
+        this.userRole = savedRole;
+      }
+    }
+
+    if (this.router.url.startsWith('/products')) {
+      this.openedMenu = 'Product';
+    }
+
+    if (this.router.url.startsWith('/categories')) {
+      this.openedMenu = 'Category';
     }
   }
 
-  canShow(item: any): boolean {
+  canShow(item: MenuItem): boolean {
     return item.roles.includes(this.userRole);
   }
 
+  toggle(label: string): void {
+    this.openedMenu = this.openedMenu === label ? '' : label;
+  }
+
+ isActiveParent(item: MenuItem): boolean {
+  if (item.label === 'Product') {
+    return this.router.url.startsWith('/products');
+  }
+
+  if (item.label === 'Category') {
+    return this.router.url.startsWith('/categories');
+  }
+
+  return false;
+}
   logout(): void {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.clear();

@@ -10,6 +10,15 @@ import { StatCardComponent } from '../../shared/stat-card/stat-card';
   styleUrl: './dashboard.css'
 })
 export class DashboardComponent {
+
+  username = localStorage.getItem('username') || 'Admin';
+
+  currentDate = new Date().toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+  });
+
   cards = [
     {
       title: 'Products',

@@ -1,0 +1,162 @@
+.products-page {
+  padding-top: 8px;
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.page-label {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #b98200;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 42px;
+  font-weight: 800;
+  letter-spacing: -1.8px;
+  color: #111827;
+}
+
+.page-subtitle {
+  margin: 12px 0 0;
+  color: #6b7280;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.primary-btn {
+  height: 46px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 14px;
+  background: #d99a00;
+  color: #ffffff;
+  font-weight: 800;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.products-card {
+  background: rgba(255,255,255,0.86);
+  border: 1px solid rgba(229,225,216,0.75);
+  border-radius: 24px;
+  padding: 22px;
+  box-shadow: 0 10px 40px rgba(17,24,39,0.05);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.search-box {
+  width: 320px;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid #e5e1d8;
+  border-radius: 14px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.search-box span {
+  color: #6b7280;
+}
+
+.search-box input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-weight: 600;
+  color: #111827;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  padding: 14px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 800;
+  color: #6b7280;
+  background: #f8f5ed;
+}
+
+td {
+  padding: 16px 14px;
+  border-bottom: 1px solid #eee9df;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+td strong {
+  color: #111827;
+  font-weight: 800;
+}
+
+.status {
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: #e8f7ef;
+  color: #16824a;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.status.low {
+  background: #fff4d8;
+  color: #b98200;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.icon-btn {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 10px;
+  background: #f6f1e7;
+  color: #4b5563;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.icon-btn span {
+  font-size: 20px;
+}
+
+.icon-btn:hover {
+  background: #efe4cf;
+  color: #111827;
+}
+
+.icon-btn.danger {
+  color: #dc2626;
+}

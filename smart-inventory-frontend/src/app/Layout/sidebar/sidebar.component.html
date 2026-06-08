@@ -11,19 +11,62 @@
   <nav class="menu">
     @for (item of menu; track item.label) {
       @if (canShow(item)) {
-        <a
-          class="menu-item"
-          [routerLink]="item.route"
-          routerLinkActive="active"
-        >
-          <span class="material-symbols-rounded menu-icon">
-            {{ item.icon }}
-          </span>
+        @if (item.children) {
+          <div class="menu-group">
+            <button
+              class="menu-item menu-parent"
+              type="button"
+              (click)="toggle(item.label)"
+              [class.active]="isActiveParent(item)"
+            >
+              <span class="material-symbols-rounded menu-icon">
+                {{ item.icon }}
+              </span>
 
-          <span class="menu-label">
-            {{ item.label }}
-          </span>
-        </a>
+              <span class="menu-label">
+                {{ item.label }}
+              </span>
+
+              <span class="material-symbols-rounded arrow">
+                {{ openedMenu === item.label ? 'expand_less' : 'expand_more' }}
+              </span>
+            </button>
+
+            @if (openedMenu === item.label) {
+              <div class="submenu">
+                @for (child of item.children; track child.label) {
+                  <a
+                    class="submenu-item"
+                    [routerLink]="child.route"
+                    routerLinkActive="active"
+                    [routerLinkActiveOptions]="{ exact: child.route === '/products' || child.route === '/categories' }"
+                  >
+                    <span class="material-symbols-rounded">
+                      {{ child.icon }}
+                    </span>
+
+                    {{ child.label }}
+                  </a>
+                }
+              </div>
+            }
+          </div>
+        } @else {
+          <a
+            class="menu-item"
+            [routerLink]="item.route"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+          >
+            <span class="material-symbols-rounded menu-icon">
+              {{ item.icon }}
+            </span>
+
+            <span class="menu-label">
+              {{ item.label }}
+            </span>
+          </a>
+        }
       }
     }
   </nav>

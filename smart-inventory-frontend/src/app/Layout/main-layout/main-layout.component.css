@@ -1,15 +1,24 @@
 .app-shell {
   min-height: 100vh;
   display: flex;
-  background: #f8f7f3;
+
+  background:
+    linear-gradient(
+      180deg,
+      #faf8f2 0%,
+      #f6f4ee 100%
+    );
+
   color: #111827;
 }
 
 .app-main {
   flex: 1;
   min-width: 0;
+
+  overflow-y: auto;
 }
 
 .page-content {
-  padding: 0 28px 28px;
+  padding: 24px 30px 30px;
 }

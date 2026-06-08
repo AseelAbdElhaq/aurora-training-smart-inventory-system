@@ -1,0 +1,76 @@
+<section class="categories-page">
+  <div class="page-header">
+    <div>
+      <p class="page-label">Categories</p>
+      <h1>Category Management</h1>
+      <p class="page-subtitle">
+        Add and manage product categories like laptops, mobiles, and accessories.
+      </p>
+    </div>
+
+    @if (canManage()) {
+      <a routerLink="/categories/add" class="primary-btn">
+        <span class="material-symbols-rounded">add</span>
+        Add Category
+      </a>
+    }
+  </div>
+
+  <div class="categories-card">
+    <div class="card-header">
+      <div class="search-box">
+        <span class="material-symbols-rounded">search</span>
+
+        <input
+          type="text"
+          placeholder="Search categories..."
+          [(ngModel)]="keyword"
+          (input)="searchCategories()"
+        />
+      </div>
+    </div>
+
+    @if (loading) {
+      <p class="empty-message">Loading categories...</p>
+    } @else {
+      @if (categories.length === 0) {
+        <p class="empty-message">No categories found.</p>
+      } @else {
+        <div class="category-grid">
+          @for (category of categories; track category.id) {
+            <div class="category-card">
+              <div class="category-icon">
+                <span class="material-symbols-rounded">category</span>
+              </div>
+
+              <div class="category-info">
+                <h3>{{ category.categoryName }}</h3>
+                <p>{{ category.description || 'No description available.' }}</p>
+              </div>
+
+              <div class="actions">
+                @if (canManage()) {
+                  <a
+                    class="icon-btn"
+                    [routerLink]="['/categories/edit', category.id]"
+                  >
+                    <span class="material-symbols-rounded">edit</span>
+                  </a>
+                }
+
+                @if (canDelete()) {
+                  <button
+                    class="icon-btn danger"
+                    (click)="deleteCategory(category.id)"
+                  >
+                    <span class="material-symbols-rounded">delete</span>
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+</section>

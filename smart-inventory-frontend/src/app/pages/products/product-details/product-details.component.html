@@ -1,0 +1,64 @@
+<section class="details-page">
+  <div class="page-header">
+    <div>
+      <p class="page-label">Products</p>
+      <h1>Product Details</h1>
+      <p class="page-subtitle">
+        View product information, quantity, and supplier details.
+      </p>
+    </div>
+
+    <a routerLink="/products" class="back-btn">
+      Back
+    </a>
+  </div>
+
+  @if (product) {
+    <div class="details-card">
+      <div class="product-icon">
+        <span class="material-symbols-rounded">inventory_2</span>
+      </div>
+
+      <div>
+        <h2>{{ product.productName }}</h2>
+        <p>{{ product.description || 'No description available.' }}</p>
+      </div>
+
+      <div class="details-grid">
+        <div>
+          <span>SKU</span>
+          <strong>{{ product.sku }}</strong>
+        </div>
+
+        <div>
+          <span>Category</span>
+          <strong>{{ product.category?.categoryName || 'No Category' }}</strong>
+        </div>
+
+        <div>
+          <span>Supplier</span>
+          <strong>{{ product.supplier?.supplierName || 'No Supplier' }}</strong>
+        </div>
+
+        <div>
+          <span>Price</span>
+          <strong>${{ product.price }}</strong>
+        </div>
+
+        <div>
+          <span>Quantity</span>
+          <strong>{{ product.quantity }}</strong>
+        </div>
+
+        <div>
+          <span>Status</span>
+          <strong>
+            {{ product.quantity <= 10 ? 'LOW STOCK' : 'ACTIVE' }}
+          </strong>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <p class="empty-message">Loading product details...</p>
+  }
+</section>

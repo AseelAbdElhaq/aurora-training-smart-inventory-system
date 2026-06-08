@@ -1,17 +1,27 @@
 <section class="dashboard">
   <div class="dashboard-header">
     <div>
-      <p class="welcome">Welcome back, Admin 👋</p>
+      <p class="welcome">
+        Welcome back, {{ username }} 👋
+      </p>
+
       <h1>Overview</h1>
+
       <p class="subtitle">
         Track inventory and monitor your business.
       </p>
     </div>
 
     <button class="date-btn">
-      <span class="material-symbols-rounded">calendar_month</span>
-      June 6, 2026 - June 6, 2026
-      <span class="material-symbols-rounded">keyboard_arrow_down</span>
+      <div class="date-icon">
+        <span class="material-symbols-rounded">
+          calendar_month
+        </span>
+      </div>
+
+      <div class="date-content">
+        <strong>{{ currentDate }}</strong>
+      </div>
     </button>
   </div>
 

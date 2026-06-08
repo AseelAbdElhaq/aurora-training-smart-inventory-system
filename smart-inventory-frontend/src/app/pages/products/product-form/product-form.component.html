@@ -1,0 +1,165 @@
+<section class="product-form-page">
+  @if (canManage()) {
+    <div class="breadcrumb">
+      <span class="material-symbols-rounded">home</span>
+      <span>/</span>
+      <span>Product</span>
+      <span>/</span>
+      <strong>{{ productId ? 'Edit Product' : 'Add Product' }}</strong>
+    </div>
+
+    <div class="page-title-row">
+      <div>
+        <h1>{{ productId ? 'Edit Product' : 'Add Product' }}</h1>
+        <p>
+          {{ productId ? 'Update product information' : 'Add your product for warehouse stock' }}
+        </p>
+      </div>
+
+      <a routerLink="/products" class="outline-btn">
+        Product List
+      </a>
+    </div>
+
+    <form class="product-layout" (ngSubmit)="saveProduct()">
+      <div class="left-column">
+        <div class="form-card big-card">
+          <div class="card-title">
+            <h2>Basic Information</h2>
+            <span class="material-symbols-rounded">more_vert</span>
+          </div>
+
+          <label>
+            Input Your Product Name
+            <input
+              type="text"
+              name="productName"
+              [(ngModel)]="product.productName"
+              placeholder="Example: Laptop Dell XPS"
+              required
+            />
+          </label>
+
+          <label>
+            Input Your Descriptions Here
+            <textarea
+              name="description"
+              [(ngModel)]="product.description"
+              placeholder="Write product description here...">
+            </textarea>
+          </label>
+        </div>
+
+        <div class="form-card">
+          <div class="card-title">
+            <h2>Price & Quantity</h2>
+            <span class="material-symbols-rounded">more_vert</span>
+          </div>
+
+          <div class="two-grid">
+            <label>
+              Price
+              <input
+                type="number"
+                name="price"
+                [(ngModel)]="product.price"
+                placeholder="100"
+              />
+            </label>
+
+            <label>
+              Quantity
+              <input
+                type="number"
+                name="quantity"
+                [(ngModel)]="product.quantity"
+                placeholder="50"
+              />
+            </label>
+          </div>
+
+          <label>
+            SKU Code
+            <input
+              type="text"
+              name="sku"
+              [(ngModel)]="product.sku"
+              placeholder="SKU-001"
+            />
+          </label>
+        </div>
+      </div>
+
+      <div class="right-column">
+        <div class="form-card">
+          <h2>Product Image</h2>
+
+          <div class="image-preview">
+            @if (product.imageUrl) {
+              <img [src]="product.imageUrl" alt="Product Image" />
+            } @else {
+              <div>
+                <span class="material-symbols-rounded">image</span>
+                <p>No image</p>
+              </div>
+            }
+          </div>
+
+          <label>
+            Image URL
+            <input
+              type="text"
+              name="imageUrl"
+              [(ngModel)]="product.imageUrl"
+              placeholder="Paste image URL"
+            />
+          </label>
+        </div>
+
+        <div class="form-card">
+          <h2>Category</h2>
+
+          <label>
+            Product Category
+            <select name="category" [(ngModel)]="selectedCategoryId">
+              <option [ngValue]="null">Select Category</option>
+
+              @for (category of categories; track category.id) {
+                <option [ngValue]="category.id">
+                  {{ category.categoryName }}
+                </option>
+              }
+            </select>
+          </label>
+        </div>
+
+        <div class="form-card">
+          <h2>Supplier</h2>
+
+          <label>
+            Product Supplier
+            <select name="supplier" [(ngModel)]="selectedSupplierId">
+              <option [ngValue]="null">Select Supplier</option>
+
+              @for (supplier of suppliers; track supplier.id) {
+                <option [ngValue]="supplier.id">
+                  {{ supplier.supplierName }}
+                </option>
+              }
+            </select>
+          </label>
+        </div>
+
+        <button class="submit-btn" type="submit">
+          {{ productId ? 'Update Product' : 'Save Product' }}
+        </button>
+      </div>
+    </form>
+  } @else {
+    <div class="no-access">
+      <h2>Access Denied</h2>
+      <p>You do not have permission to add or edit products.</p>
+      <a routerLink="/products">Back to products</a>
+    </div>
+  }
+</section>

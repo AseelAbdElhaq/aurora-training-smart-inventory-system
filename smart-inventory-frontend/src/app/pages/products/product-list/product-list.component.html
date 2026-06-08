@@ -1,0 +1,120 @@
+<section class="products-page">
+  <div class="page-header">
+    <div>
+      <p class="page-label">Products</p>
+      <h1>Product Management</h1>
+      <p class="page-subtitle">
+        Manage products, suppliers, prices, and quantities.
+      </p>
+    </div>
+
+    @if (canAdd()) {
+      <a routerLink="/products/add" class="primary-btn">
+        <span class="material-symbols-rounded">add</span>
+        Add Product
+      </a>
+    }
+  </div>
+
+  <div class="products-card">
+    <div class="card-header">
+      <div class="search-box">
+        <span class="material-symbols-rounded">search</span>
+
+        <input
+          type="text"
+          placeholder="Search products..."
+          [(ngModel)]="keyword"
+          (input)="searchProducts()"
+        />
+      </div>
+    </div>
+
+    @if (loading) {
+      <p class="empty-message">Loading products...</p>
+    } @else {
+      @if (products.length === 0) {
+        <p class="empty-message">No products found.</p>
+      } @else {
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>SKU</th>
+                <th>Category</th>
+                <th>Supplier</th>
+                <th>Price</th>
+                <th>Qty</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (product of products; track product.id) {
+                <tr>
+                  <td>
+                    <strong>{{ product.productName }}</strong>
+                  </td>
+
+                  <td>{{ product.sku }}</td>
+
+                  <td>
+                    {{ product.category?.categoryName || 'No Category' }}
+                  </td>
+
+                  <td>
+                    {{ product.supplier?.supplierName || 'No Supplier' }}
+                  </td>
+
+                  <td>${{ product.price }}</td>
+
+                  <td>{{ product.quantity }}</td>
+
+                  <td>
+                    <span
+                      class="status"
+                      [class.low]="product.quantity <= 10"
+                    >
+                      {{ product.quantity <= 10 ? 'LOW STOCK' : 'ACTIVE' }}
+                    </span>
+                  </td>
+
+                  <td>
+                    <div class="actions">
+                      <a
+                        [routerLink]="['/products/details', product.id]"
+                        class="icon-btn"
+                      >
+                        <span class="material-symbols-rounded">visibility</span>
+                      </a>
+
+                      @if (canEdit()) {
+                        <a
+                          [routerLink]="['/products/edit', product.id]"
+                          class="icon-btn"
+                        >
+                          <span class="material-symbols-rounded">edit</span>
+                        </a>
+                      }
+
+                      @if (canDelete()) {
+                        <button
+                          class="icon-btn danger"
+                          (click)="deleteProduct(product.id)"
+                        >
+                          <span class="material-symbols-rounded">delete</span>
+                        </button>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+  </div>
+</section>
