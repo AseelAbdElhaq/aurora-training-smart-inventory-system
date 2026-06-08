@@ -1,0 +1,107 @@
+<section class="warehouse-page">
+  <div class="page-header">
+    <div>
+      <p class="page-label">Warehouses</p>
+
+      <h1>Warehouse Management</h1>
+
+      <p class="subtitle">
+        Manage warehouse locations, storage capacity, and usage.
+      </p>
+    </div>
+
+    @if (canManage()) {
+      <a routerLink="/warehouses/add" class="add-btn">
+        <span class="material-symbols-rounded">add</span>
+        Add Warehouse
+      </a>
+    }
+  </div>
+
+  <div class="warehouse-card">
+    @if (loading) {
+      <p class="loading">Loading warehouses...</p>
+    } @else {
+      @if (warehouses.length === 0) {
+        <div class="empty-state">
+          <span class="material-symbols-rounded">warehouse</span>
+
+          <h3>No warehouses found</h3>
+
+          <p>Add your first warehouse to start managing capacity.</p>
+        </div>
+      } @else {
+        <div class="warehouse-grid">
+          @for (warehouse of warehouses; track warehouse.id) {
+            <div class="warehouse-item">
+              <div class="warehouse-top">
+                <div class="warehouse-icon">
+                  <span class="material-symbols-rounded">warehouse</span>
+                </div>
+
+                <div>
+                  <h3>{{ warehouse.warehouseName }}</h3>
+                  <p>{{ warehouse.location || 'No location added' }}</p>
+                </div>
+              </div>
+
+              <div class="capacity-info">
+                <div>
+                  <span>Total Capacity</span>
+                  <strong>{{ warehouse.capacity }}</strong>
+                </div>
+
+                <div>
+                  <span>Used</span>
+                  <strong>{{ warehouse.currentCapacity }}</strong>
+                </div>
+
+                <div>
+                  <span>Available</span>
+                  <strong>{{ getAvailableCapacity(warehouse) }}</strong>
+                </div>
+              </div>
+
+              <div class="progress-area">
+                <div class="progress-top">
+                  <span>Capacity Usage</span>
+                  <b>{{ getUsedPercentage(warehouse) }}%</b>
+                </div>
+
+                <div class="progress-bar">
+                  <div
+                    class="progress-fill"
+                    [style.width.%]="getUsedPercentage(warehouse)"
+                  ></div>
+                </div>
+              </div>
+
+              <div class="actions">
+                @if (canManage()) {
+                  <a
+                    class="edit-btn"
+                    [routerLink]="['/warehouses/edit', warehouse.id]"
+                  >
+                    <span class="material-symbols-rounded">edit</span>
+                    <span>Edit</span>
+                  </a>
+                }
+
+                @if (canDelete()) {
+                  <button
+                    class="delete-btn"
+                    type="button"
+                    (click)="deleteWarehouse(warehouse.id)"
+                  >
+                    <span class="material-symbols-rounded">delete</span>
+                    <span>Delete</span>
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+</section>

@@ -1,5 +1,14 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {
+  Component,
+  Inject,
+  PLATFORM_ID
+} from '@angular/core';
+
+import {
+  CommonModule,
+  isPlatformBrowser
+} from '@angular/common';
+
 import { StatCardComponent } from '../../shared/stat-card/stat-card';
 
 @Component({
@@ -11,13 +20,23 @@ import { StatCardComponent } from '../../shared/stat-card/stat-card';
 })
 export class DashboardComponent {
 
-  username = localStorage.getItem('username') || 'Admin';
+  username = 'Admin';
 
   currentDate = new Date().toLocaleDateString('en-US', {
     month: 'long',
     day: 'numeric',
     year: 'numeric'
   });
+
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
+
+    if (isPlatformBrowser(this.platformId)) {
+      this.username =
+        localStorage.getItem('username') || 'Admin';
+    }
+  }
 
   cards = [
     {

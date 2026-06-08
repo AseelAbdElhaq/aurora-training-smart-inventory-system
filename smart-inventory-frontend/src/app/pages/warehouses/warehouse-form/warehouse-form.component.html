@@ -1,0 +1,118 @@
+<section class="warehouse-form-page">
+  <div class="breadcrumb">
+    <span class="material-symbols-rounded">home</span>
+    <span>/</span>
+    <a routerLink="/warehouses">Warehouses</a>
+    <span>/</span>
+    <b>{{ isEditMode ? 'Edit Warehouse' : 'Add Warehouse' }}</b>
+  </div>
+
+  <div class="page-header">
+    <div>
+      <h1>{{ isEditMode ? 'Edit Warehouse' : 'Add Warehouse' }}</h1>
+      <p>Add warehouse storage information and capacity details</p>
+    </div>
+
+    <a routerLink="/warehouses" class="list-btn">
+      Warehouse List
+    </a>
+  </div>
+
+  @if (errorMessage) {
+    <div class="error-box">
+      {{ errorMessage }}
+    </div>
+  }
+
+  <div class="form-grid">
+    <div class="left-area">
+      <div class="form-card">
+        <div class="card-title">
+          <h2>Basic Information</h2>
+          <span class="material-symbols-rounded">more_vert</span>
+        </div>
+
+        <label>Warehouse Name</label>
+        <input
+          type="text"
+          placeholder="Example: Main Warehouse"
+          [(ngModel)]="warehouse.warehouseName"
+        />
+
+        <label>Location</label>
+        <textarea
+          placeholder="Example: Ramallah Industrial Area"
+          [(ngModel)]="warehouse.location">
+        </textarea>
+      </div>
+
+      <div class="form-card">
+        <div class="card-title">
+          <h2>Capacity Information</h2>
+          <span class="material-symbols-rounded">more_vert</span>
+        </div>
+
+        <div class="two-inputs">
+          <div>
+            <label>Total Capacity</label>
+            <input
+              type="number"
+              min="1"
+              [(ngModel)]="warehouse.capacity"
+            />
+          </div>
+
+          <div>
+            <label>Current Capacity</label>
+            <input
+              type="number"
+              min="0"
+              [(ngModel)]="warehouse.currentCapacity"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="right-area">
+      <div class="side-card">
+        <h2>Capacity Preview</h2>
+
+        <div class="preview-icon">
+          <span class="material-symbols-rounded">warehouse</span>
+        </div>
+
+        <h3>{{ warehouse.warehouseName || 'Warehouse Name' }}</h3>
+        <p>{{ warehouse.location || 'Warehouse location' }}</p>
+
+        <div class="capacity-preview">
+          <div>
+            <span>Total</span>
+            <strong>{{ warehouse.capacity || 0 }}</strong>
+          </div>
+
+          <div>
+            <span>Used</span>
+            <strong>{{ warehouse.currentCapacity || 0 }}</strong>
+          </div>
+        </div>
+
+        <div class="progress-top">
+          <span>Usage</span>
+          <b>{{ getUsedPercentage() }}%</b>
+        </div>
+
+        <div class="progress-bar">
+          <div
+            class="progress-fill"
+            [style.width.%]="getUsedPercentage()">
+          </div>
+        </div>
+      </div>
+
+      <button class="save-btn" (click)="saveWarehouse()">
+        {{ isEditMode ? 'Update Warehouse' : 'Save Warehouse' }}
+      </button>
+    </div>
+  </div>
+</section>

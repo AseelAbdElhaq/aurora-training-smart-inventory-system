@@ -80,7 +80,9 @@ export class CategoryListComponent implements OnInit {
 
     this.categoryService.deleteCategory(id).subscribe({
       next: () => {
-        this.loadCategories();
+        this.categories = this.categories.filter(
+          (category) => category.id !== id
+        );
       },
       error: (error) => {
         console.error('Delete error:', error);

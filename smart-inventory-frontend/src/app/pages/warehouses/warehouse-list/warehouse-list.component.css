@@ -1,0 +1,228 @@
+.warehouse-page {
+  padding: 8px 4px 80px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 26px;
+}
+
+.page-label {
+  margin: 0 0 12px;
+  color: #c58a00;
+  font-weight: 900;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 44px;
+  font-weight: 900;
+  letter-spacing: -2px;
+  color: #111827;
+}
+
+.subtitle {
+  margin: 12px 0 0;
+  color: #6b7280;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.add-btn {
+  height: 50px;
+  padding: 0 22px;
+  border-radius: 15px;
+  background: #d99a00;
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.warehouse-card {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #e8e2d6;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 12px 35px rgba(17, 24, 39, 0.05);
+}
+
+.loading {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.empty-state {
+  min-height: 260px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: #6b7280;
+}
+
+.empty-state span {
+  font-size: 58px;
+  color: #d99a00;
+}
+
+.empty-state h3 {
+  margin: 10px 0 4px;
+  color: #111827;
+  font-size: 22px;
+}
+
+.warehouse-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.warehouse-item {
+  border: 1px solid #eee5d7;
+  border-radius: 22px;
+  padding: 20px;
+  background: #ffffff;
+  box-shadow: 0 8px 25px rgba(17, 24, 39, 0.04);
+}
+
+.warehouse-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.warehouse-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 15px;
+  background: #f6f1e7;
+  display: grid;
+  place-items: center;
+  color: #6b7280;
+}
+
+.warehouse-top h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 900;
+  color: #111827;
+}
+
+.warehouse-top p {
+  margin: 5px 0 0;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.capacity-info {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 22px 0;
+}
+
+.capacity-info div {
+  background: #faf7ef;
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.capacity-info span {
+  display: block;
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.capacity-info strong {
+  display: block;
+  margin-top: 5px;
+  color: #111827;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.progress-top {
+  display: flex;
+  justify-content: space-between;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.progress-top b {
+  color: #111827;
+}
+
+.progress-bar {
+  height: 10px;
+  border-radius: 99px;
+  background: #eee8dc;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: #f2c45f;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.actions button,
+.actions a {
+  flex: 1;
+  height: 42px;
+  border: none;
+  border-radius: 13px;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.edit-btn,
+.edit-btn:visited,
+.edit-btn:hover,
+.edit-btn:active {
+  background: #f6f1e7;
+  color: #111827;
+  text-decoration: none;
+}
+
+.delete-btn {
+  background: #ffe7e7;
+  color: #d63031;
+}
+
+@media (max-width: 1200px) {
+  .warehouse-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 800px) {
+  .warehouse-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-header {
+    flex-direction: column;
+    gap: 18px;
+  }
+}

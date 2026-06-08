@@ -22,6 +22,7 @@ export class CategoryFormComponent implements OnInit {
   userRole: Role = 'ADMIN';
 
   categoryId: number | null = null;
+  loading = false;
 
   category: Category = {
     categoryName: '',
@@ -49,12 +50,16 @@ export class CategoryFormComponent implements OnInit {
   }
 
   loadCategory(id: number): void {
+    this.loading = true;
+
     this.categoryService.getCategoryById(id).subscribe({
       next: (data) => {
-        this.category = data;
+        this.category = { ...data };
+        this.loading = false;
       },
       error: (error) => {
         console.error('Error loading category:', error);
+        this.loading = false;
       }
     });
   }

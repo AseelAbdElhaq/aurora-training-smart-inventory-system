@@ -39,7 +39,12 @@
                     class="submenu-item"
                     [routerLink]="child.route"
                     routerLinkActive="active"
-                    [routerLinkActiveOptions]="{ exact: child.route === '/products' || child.route === '/categories' }"
+                    [routerLinkActiveOptions]="{
+                      exact:
+                        child.route === '/products' ||
+                        child.route === '/categories' ||
+                        child.route === '/warehouses'
+                    }"
                   >
                     <span class="material-symbols-rounded">
                       {{ child.icon }}

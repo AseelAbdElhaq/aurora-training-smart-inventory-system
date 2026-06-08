@@ -31,7 +31,6 @@ type MenuItem = {
 })
 export class SidebarComponent {
   userRole: Role = 'ADMIN';
-
   openedMenu = '';
 
   menu: MenuItem[] = [
@@ -46,16 +45,8 @@ export class SidebarComponent {
       icon: 'inventory_2',
       roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE', 'PURCHASING_MANAGER'],
       children: [
-        {
-          label: 'Add Product',
-          icon: 'add_box',
-          route: '/products/add'
-        },
-        {
-          label: 'Product List',
-          icon: 'format_list_bulleted',
-          route: '/products'
-        }
+        { label: 'Add Product', icon: 'add_box', route: '/products/add' },
+        { label: 'Product List', icon: 'format_list_bulleted', route: '/products' }
       ]
     },
     {
@@ -63,16 +54,8 @@ export class SidebarComponent {
       icon: 'category',
       roles: ['ADMIN', 'INVENTORY_MANAGER'],
       children: [
-        {
-          label: 'Add Category',
-          icon: 'add_box',
-          route: '/categories/add'
-        },
-        {
-          label: 'Category List',
-          icon: 'format_list_bulleted',
-          route: '/categories'
-        }
+        { label: 'Add Category', icon: 'add_box', route: '/categories/add' },
+        { label: 'Category List', icon: 'format_list_bulleted', route: '/categories' }
       ]
     },
     {
@@ -90,8 +73,11 @@ export class SidebarComponent {
     {
       label: 'Warehouses',
       icon: 'warehouse',
-      route: '/warehouses',
-      roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE']
+      roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE'],
+      children: [
+        { label: 'Add Warehouse', icon: 'add_box', route: '/warehouses/add' },
+        { label: 'Warehouse List', icon: 'format_list_bulleted', route: '/warehouses' }
+      ]
     },
     {
       label: 'Suppliers',
@@ -156,6 +142,10 @@ export class SidebarComponent {
     if (this.router.url.startsWith('/categories')) {
       this.openedMenu = 'Category';
     }
+
+    if (this.router.url.startsWith('/warehouses')) {
+      this.openedMenu = 'Warehouses';
+    }
   }
 
   canShow(item: MenuItem): boolean {
@@ -166,17 +156,22 @@ export class SidebarComponent {
     this.openedMenu = this.openedMenu === label ? '' : label;
   }
 
- isActiveParent(item: MenuItem): boolean {
-  if (item.label === 'Product') {
-    return this.router.url.startsWith('/products');
+  isActiveParent(item: MenuItem): boolean {
+    if (item.label === 'Product') {
+      return this.router.url.startsWith('/products');
+    }
+
+    if (item.label === 'Category') {
+      return this.router.url.startsWith('/categories');
+    }
+
+    if (item.label === 'Warehouses') {
+      return this.router.url.startsWith('/warehouses');
+    }
+
+    return false;
   }
 
-  if (item.label === 'Category') {
-    return this.router.url.startsWith('/categories');
-  }
-
-  return false;
-}
   logout(): void {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.clear();

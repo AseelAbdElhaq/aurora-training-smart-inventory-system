@@ -30,7 +30,25 @@ export const routes: Routes = [
         path: 'dashboard',
         component: DashboardComponent
       },
-
+    {
+  path: 'warehouses',
+  loadComponent: () =>
+    import('./pages/warehouses/warehouse-list/warehouse-list.component')
+      .then(m => m.WarehouseListComponent),
+  runGuardsAndResolvers: 'always'
+},
+      {
+        path: 'warehouses/add',
+        loadComponent: () =>
+          import('./pages/warehouses/warehouse-form/warehouse-form.component')
+            .then(m => m.WarehouseFormComponent)
+      },
+      {
+        path: 'warehouses/edit/:id',
+        loadComponent: () =>
+          import('./pages/warehouses/warehouse-form/warehouse-form.component')
+            .then(m => m.WarehouseFormComponent)
+      },
       {
         path: 'products',
         component: ProductListComponent
