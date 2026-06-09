@@ -1,0 +1,82 @@
+<div class="stock-form-page">
+
+  <div class="form-card">
+
+    <div class="form-header">
+      <h2>
+        @if (isEdit) {
+          Edit Stock
+        } @else {
+          Add Stock
+        }
+      </h2>
+
+      <p>
+        Manage warehouse stock quantities
+      </p>
+    </div>
+
+    <div class="form-grid">
+
+      <div class="form-group">
+        <label>Product</label>
+
+        <select [(ngModel)]="formData.productId">
+
+          <option value="">
+            Select Product
+          </option>
+
+          @for (product of products; track product.id) {
+            <option [value]="product.id">
+              {{ product.productName }}
+            </option>
+          }
+
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Warehouse</label>
+
+        <select [(ngModel)]="formData.warehouseId">
+
+          <option value="">
+            Select Warehouse
+          </option>
+
+          @for (warehouse of warehouses; track warehouse.id) {
+            <option [value]="warehouse.id">
+              {{ warehouse.warehouseName }}
+            </option>
+          }
+
+        </select>
+      </div>
+
+      <div class="form-group full-width">
+        <label>Quantity</label>
+
+        <input
+          type="number"
+          [(ngModel)]="formData.quantity"
+          placeholder="Enter quantity"
+        />
+      </div>
+
+    </div>
+
+    <button
+      class="save-btn"
+      (click)="saveStock()"
+    >
+      @if (isEdit) {
+        Update Stock
+      } @else {
+        Save Stock
+      }
+    </button>
+
+  </div>
+
+</div>

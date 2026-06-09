@@ -13,11 +13,12 @@
       @if (canShow(item)) {
         @if (item.children) {
           <div class="menu-group">
-            <button
+            <a
               class="menu-item menu-parent"
-              type="button"
-              (click)="toggle(item.label)"
-              [class.active]="isActiveParent(item)"
+              [routerLink]="getParentRoute(item.label)"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: false }"
+              (click)="openedMenu = item.label"
             >
               <span class="material-symbols-rounded menu-icon">
                 {{ item.icon }}
@@ -30,7 +31,7 @@
               <span class="material-symbols-rounded arrow">
                 {{ openedMenu === item.label ? 'expand_less' : 'expand_more' }}
               </span>
-            </button>
+            </a>
 
             @if (openedMenu === item.label) {
               <div class="submenu">
@@ -39,12 +40,7 @@
                     class="submenu-item"
                     [routerLink]="child.route"
                     routerLinkActive="active"
-                    [routerLinkActiveOptions]="{
-                      exact:
-                        child.route === '/products' ||
-                        child.route === '/categories' ||
-                        child.route === '/warehouses'
-                    }"
+                    [routerLinkActiveOptions]="{ exact: true }"
                   >
                     <span class="material-symbols-rounded">
                       {{ child.icon }}
@@ -76,7 +72,7 @@
     }
   </nav>
 
-  <button class="logout-btn" (click)="logout()">
+  <button class="logout-btn" type="button" (click)="logout()">
     <span class="material-symbols-rounded">logout</span>
     <span>Logout</span>
   </button>

@@ -1,0 +1,90 @@
+<div class="supplier-page">
+
+  <div class="page-header">
+    <div>
+      <h2>Suppliers</h2>
+      <p>Manage product suppliers</p>
+    </div>
+
+    <a routerLink="/suppliers/add" class="add-btn">
+      Add Supplier
+    </a>
+  </div>
+
+  @if (loading) {
+
+    <div class="empty-state">
+      Loading suppliers...
+    </div>
+
+  } @else {
+
+    @if (suppliers.length === 0) {
+
+      <div class="empty-state">
+        No suppliers found
+      </div>
+
+    } @else {
+
+      <div class="supplier-grid">
+
+        @for (supplier of suppliers; track supplier.id) {
+
+          <div class="supplier-card">
+
+            <div class="supplier-top">
+              <div>
+                <h3>{{ supplier.supplierName }}</h3>
+                <p>{{ supplier.contactPerson }}</p>
+              </div>
+
+              <div class="supplier-icon">
+                local_shipping
+              </div>
+            </div>
+
+            <div class="supplier-info">
+              <p>
+                <span>Email:</span>
+                {{ supplier.email }}
+              </p>
+
+              <p>
+                <span>Phone:</span>
+                {{ supplier.phone }}
+              </p>
+
+              <p>
+                <span>Address:</span>
+                {{ supplier.address }}
+              </p>
+            </div>
+
+            <div class="supplier-actions">
+              <button
+                class="edit-btn"
+                [routerLink]="['/suppliers/edit', supplier.id]"
+              >
+                Edit
+              </button>
+
+              <button
+                class="delete-btn"
+                (click)="deleteSupplier(supplier.id)"
+              >
+                Delete
+              </button>
+            </div>
+
+          </div>
+
+        }
+
+      </div>
+
+    }
+
+  }
+
+</div>

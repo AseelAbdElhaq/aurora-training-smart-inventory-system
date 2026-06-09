@@ -1,5 +1,11 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  Inject,
+  OnInit,
+  PLATFORM_ID
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
@@ -27,6 +33,7 @@ export class CategoryListComponent implements OnInit {
 
   constructor(
     private categoryService: CategoryService,
+    private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     if (isPlatformBrowser(this.platformId)) {
@@ -40,15 +47,19 @@ export class CategoryListComponent implements OnInit {
 
   loadCategories(): void {
     this.loading = true;
+    this.cdr.detectChanges();
 
     this.categoryService.getCategories().subscribe({
       next: (data) => {
-        this.categories = data;
+        this.categories = Array.isArray(data) ? [...data] : [];
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (error) => {
-        console.error('Error loading categories:', error);
+        console.error('CATEGORY ERROR:', error);
+        this.categories = [];
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -61,12 +72,20 @@ export class CategoryListComponent implements OnInit {
       return;
     }
 
+    this.loading = true;
+    this.cdr.detectChanges();
+
     this.categoryService.searchCategories(value).subscribe({
       next: (data) => {
-        this.categories = data;
+        this.categories = Array.isArray(data) ? [...data] : [];
+        this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (error) => {
-        console.error('Search error:', error);
+        console.error('SEARCH ERROR:', error);
+        this.categories = [];
+        this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -81,11 +100,12 @@ export class CategoryListComponent implements OnInit {
     this.categoryService.deleteCategory(id).subscribe({
       next: () => {
         this.categories = this.categories.filter(
-          (category) => category.id !== id
+          category => category.id !== id
         );
+        this.cdr.detectChanges();
       },
       error: (error) => {
-        console.error('Delete error:', error);
+        console.error('DELETE CATEGORY ERROR:', error);
       }
     });
   }

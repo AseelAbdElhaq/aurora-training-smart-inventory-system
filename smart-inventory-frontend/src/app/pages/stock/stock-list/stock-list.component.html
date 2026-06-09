@@ -1,0 +1,79 @@
+<div class="stock-page">
+
+  <div class="page-header">
+    <div>
+      <h2>Stock Management</h2>
+      <p>Manage warehouse product quantities</p>
+    </div>
+
+    <div class="header-actions">
+      <a routerLink="/stock/add" class="add-btn">
+        Add Stock
+      </a>
+
+      <a routerLink="/stock/transfer" class="add-btn secondary-btn">
+        Transfer Stock
+      </a>
+    </div>
+  </div>
+
+  @if (loading) {
+
+    <div class="empty-state">
+      Loading stocks...
+    </div>
+
+  } @else {
+
+    @if (stocks.length === 0) {
+
+      <div class="empty-state">
+        No stock found
+      </div>
+
+    } @else {
+
+      <div class="stock-grid">
+
+        @for (stock of stocks; track stock.id) {
+
+          <div class="stock-card">
+
+            <div class="stock-top">
+              <div>
+                <h3>{{ stock.product?.productName }}</h3>
+                <p>{{ stock.warehouse?.warehouseName }}</p>
+              </div>
+
+              <div class="qty-badge">
+                {{ stock.quantity }}
+              </div>
+            </div>
+
+            <div class="stock-actions">
+              <button
+                class="edit-btn"
+                [routerLink]="['/stock/edit', stock.id]"
+              >
+                Edit
+              </button>
+
+              <button
+                class="delete-btn"
+                (click)="deleteStock(stock.id)"
+              >
+                Delete
+              </button>
+            </div>
+
+          </div>
+
+        }
+
+      </div>
+
+    }
+
+  }
+
+</div>

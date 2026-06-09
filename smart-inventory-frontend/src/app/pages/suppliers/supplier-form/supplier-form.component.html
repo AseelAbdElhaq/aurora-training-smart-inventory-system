@@ -1,0 +1,138 @@
+@if (loading) {
+
+  <div class="supplier-form-page">
+
+    <div class="form-card">
+
+      <div class="form-header">
+
+        <h2>
+          Loading...
+        </h2>
+
+        <p>
+          Loading supplier data...
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+} @else {
+
+  <div class="supplier-form-page">
+
+    <div class="form-card">
+
+      <div class="form-header">
+
+        <h2>
+
+          @if (isEdit) {
+            Edit Supplier
+          } @else {
+            Add Supplier
+          }
+
+        </h2>
+
+        <p>
+          Enter supplier company information
+        </p>
+
+      </div>
+
+      <div class="form-grid">
+
+        <div class="form-group">
+
+          <label>
+            Supplier Name
+          </label>
+
+          <input
+            type="text"
+            [(ngModel)]="supplier.supplierName"
+            placeholder="Example: Dell Supplier"
+          />
+
+        </div>
+
+        <div class="form-group">
+
+          <label>
+            Contact Person
+          </label>
+
+          <input
+            type="text"
+            [(ngModel)]="supplier.contactPerson"
+            placeholder="Example: Ahmad Ali"
+          />
+
+        </div>
+
+        <div class="form-group">
+
+          <label>
+            Email
+          </label>
+
+          <input
+            type="email"
+            [(ngModel)]="supplier.email"
+            placeholder="supplier@email.com"
+          />
+
+        </div>
+
+        <div class="form-group">
+
+          <label>
+            Phone
+          </label>
+
+          <input
+            type="text"
+            [(ngModel)]="supplier.phone"
+            placeholder="0599000000"
+          />
+
+        </div>
+
+        <div class="form-group full-width">
+
+          <label>
+            Address
+          </label>
+
+          <textarea
+            [(ngModel)]="supplier.address"
+            placeholder="Supplier address"
+          ></textarea>
+
+        </div>
+
+      </div>
+
+      <button
+        class="save-btn"
+        type="button"
+        (click)="saveSupplier()"
+      >
+
+        @if (isEdit) {
+          Update Supplier
+        } @else {
+          Save Supplier
+        }
+
+      </button>
+
+    </div>
+
+  </div>
+
+}

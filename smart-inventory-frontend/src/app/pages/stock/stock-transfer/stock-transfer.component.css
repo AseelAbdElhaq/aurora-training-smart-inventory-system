@@ -1,0 +1,76 @@
+.transfer-page {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.transfer-card {
+  width: 100%;
+  max-width: 850px;
+  padding: 30px;
+  border-radius: 28px;
+  background: white;
+  border: 1px solid #ece7da;
+}
+
+.form-header {
+  margin-bottom: 28px;
+}
+
+.form-header h2 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 900;
+  color: #111827;
+}
+
+.form-header p {
+  margin-top: 8px;
+  color: #6b7280;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+}
+
+.full-width {
+  grid-column: span 2;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 9px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #374151;
+}
+
+.form-group input,
+.form-group select {
+  height: 52px;
+  padding: 0 16px;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  background: #faf8f2;
+  font-size: 15px;
+  outline: none;
+}
+
+.save-btn {
+  width: 100%;
+  height: 52px;
+  margin-top: 30px;
+  border: none;
+  border-radius: 16px;
+  background: #111827;
+  color: white;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+}

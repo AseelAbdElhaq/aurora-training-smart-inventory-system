@@ -1,5 +1,11 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  Inject,
+  OnInit,
+  PLATFORM_ID
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { Warehouse, WarehouseService } from '../../../services/warehouse.service';
@@ -25,6 +31,7 @@ export class WarehouseListComponent implements OnInit {
 
   constructor(
     private warehouseService: WarehouseService,
+    private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     if (isPlatformBrowser(this.platformId)) {
@@ -38,15 +45,19 @@ export class WarehouseListComponent implements OnInit {
 
   loadWarehouses(): void {
     this.loading = true;
+    this.cdr.detectChanges();
 
     this.warehouseService.getWarehouses().subscribe({
       next: (data) => {
-        this.warehouses = [...data];
+        this.warehouses = Array.isArray(data) ? [...data] : [];
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (error) => {
-        console.error('Error loading warehouses:', error);
+        console.error('WAREHOUSE ERROR:', error);
+        this.warehouses = [];
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -56,11 +67,13 @@ export class WarehouseListComponent implements OnInit {
       return 0;
     }
 
-    return Math.round((warehouse.currentCapacity / warehouse.capacity) * 100);
+    return Math.round(
+      ((warehouse.currentCapacity || 0) / warehouse.capacity) * 100
+    );
   }
 
   getAvailableCapacity(warehouse: Warehouse): number {
-    return warehouse.capacity - warehouse.currentCapacity;
+    return warehouse.capacity - (warehouse.currentCapacity || 0);
   }
 
   deleteWarehouse(id: number | undefined): void {
@@ -75,9 +88,10 @@ export class WarehouseListComponent implements OnInit {
         this.warehouses = this.warehouses.filter(
           warehouse => warehouse.id !== id
         );
+        this.cdr.detectChanges();
       },
       error: (error) => {
-        console.error('Delete warehouse error:', error);
+        console.error('DELETE WAREHOUSE ERROR:', error);
       }
     });
   }

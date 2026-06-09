@@ -1,0 +1,80 @@
+<div class="transfer-page">
+  <div class="transfer-card">
+
+    <div class="form-header">
+      <h2>Stock Transfer</h2>
+      <p>Move product quantity from one warehouse to another</p>
+    </div>
+
+    <div class="form-grid">
+
+      <div class="form-group full-width">
+        <label>Product</label>
+
+        <select [(ngModel)]="transferData.productId">
+          <option value="">Select Product</option>
+
+          @for (product of products; track product.id) {
+            <option [value]="product.id">
+              {{ product.productName }}
+            </option>
+          }
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>From Warehouse</label>
+
+        <select [(ngModel)]="transferData.sourceWarehouseId">
+          <option value="">Select Source Warehouse</option>
+
+          @for (warehouse of warehouses; track warehouse.id) {
+            <option [value]="warehouse.id">
+              {{ warehouse.warehouseName }}
+            </option>
+          }
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>To Warehouse</label>
+
+        <select [(ngModel)]="transferData.destinationWarehouseId">
+          <option value="">Select Destination Warehouse</option>
+
+          @for (warehouse of warehouses; track warehouse.id) {
+            <option [value]="warehouse.id">
+              {{ warehouse.warehouseName }}
+            </option>
+          }
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Quantity</label>
+
+        <input
+          type="number"
+          [(ngModel)]="transferData.quantity"
+          placeholder="Enter quantity"
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Notes</label>
+
+        <input
+          type="text"
+          [(ngModel)]="transferData.notes"
+          placeholder="Optional notes"
+        />
+      </div>
+
+    </div>
+
+    <button class="save-btn" type="button" (click)="transferStock()">
+      Transfer Stock
+    </button>
+
+  </div>
+</div>

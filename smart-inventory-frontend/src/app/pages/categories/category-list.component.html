@@ -3,6 +3,7 @@
     <div>
       <p class="page-label">Categories</p>
       <h1>Category Management</h1>
+
       <p class="page-subtitle">
         Add and manage product categories like laptops, mobiles, and accessories.
       </p>
@@ -37,7 +38,7 @@
         <p class="empty-message">No categories found.</p>
       } @else {
         <div class="category-grid">
-          @for (category of categories; track category.id) {
+          @for (category of categories; track category.categoryName) {
             <div class="category-card">
               <div class="category-icon">
                 <span class="material-symbols-rounded">category</span>
@@ -45,11 +46,14 @@
 
               <div class="category-info">
                 <h3>{{ category.categoryName }}</h3>
-                <p>{{ category.description || 'No description available.' }}</p>
+
+                <p>
+                  {{ category.description || 'No description available.' }}
+                </p>
               </div>
 
               <div class="actions">
-                @if (canManage()) {
+                @if (canManage() && category.id) {
                   <a
                     class="icon-btn"
                     [routerLink]="['/categories/edit', category.id]"
@@ -58,9 +62,10 @@
                   </a>
                 }
 
-                @if (canDelete()) {
+                @if (canDelete() && category.id) {
                   <button
                     class="icon-btn danger"
+                    type="button"
                     (click)="deleteCategory(category.id)"
                   >
                     <span class="material-symbols-rounded">delete</span>

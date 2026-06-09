@@ -1,6 +1,12 @@
 import { Component, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import {
+  NavigationEnd,
+  Router,
+  RouterLink,
+  RouterLinkActive
+} from '@angular/router';
+import { filter } from 'rxjs';
 
 type Role =
   | 'ADMIN'
@@ -67,8 +73,12 @@ export class SidebarComponent {
     {
       label: 'Stock',
       icon: 'assignment',
-      route: '/stock',
-      roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE']
+      roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE'],
+      children: [
+        { label: 'Add Stock', icon: 'add_box', route: '/stock/add' },
+        { label: 'Stock List', icon: 'format_list_bulleted', route: '/stock' },
+        { label: 'Transfer Stock', icon: 'sync_alt', route: '/stock/transfer' }
+      ]
     },
     {
       label: 'Warehouses',
@@ -82,8 +92,11 @@ export class SidebarComponent {
     {
       label: 'Suppliers',
       icon: 'local_shipping',
-      route: '/suppliers',
-      roles: ['ADMIN', 'PURCHASING_MANAGER']
+      roles: ['ADMIN', 'PURCHASING_MANAGER'],
+      children: [
+        { label: 'Add Supplier', icon: 'add_box', route: '/suppliers/add' },
+        { label: 'Supplier List', icon: 'format_list_bulleted', route: '/suppliers' }
+      ]
     },
     {
       label: 'Purchase Orders',
@@ -135,39 +148,64 @@ export class SidebarComponent {
       }
     }
 
-    if (this.router.url.startsWith('/products')) {
+    this.setOpenedMenuByUrl(this.router.url);
+
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe(() => {
+        this.setOpenedMenuByUrl(this.router.url);
+      });
+  }
+
+  getParentRoute(label: string): string {
+    if (label === 'Product') return '/products';
+    if (label === 'Category') return '/categories';
+    if (label === 'Stock') return '/stock';
+    if (label === 'Warehouses') return '/warehouses';
+    if (label === 'Suppliers') return '/suppliers';
+
+    return '/dashboard';
+  }
+
+  setOpenedMenuByUrl(url: string): void {
+    if (url.startsWith('/products')) {
       this.openedMenu = 'Product';
+      return;
     }
 
-    if (this.router.url.startsWith('/categories')) {
+    if (url.startsWith('/categories')) {
       this.openedMenu = 'Category';
+      return;
     }
 
-    if (this.router.url.startsWith('/warehouses')) {
-      this.openedMenu = 'Warehouses';
+    if (url.startsWith('/stock')) {
+      this.openedMenu = 'Stock';
+      return;
     }
+
+    if (url.startsWith('/warehouses')) {
+      this.openedMenu = 'Warehouses';
+      return;
+    }
+
+    if (url.startsWith('/suppliers')) {
+      this.openedMenu = 'Suppliers';
+      return;
+    }
+
+    this.openedMenu = '';
   }
 
   canShow(item: MenuItem): boolean {
     return item.roles.includes(this.userRole);
   }
 
-  toggle(label: string): void {
-    this.openedMenu = this.openedMenu === label ? '' : label;
-  }
-
   isActiveParent(item: MenuItem): boolean {
-    if (item.label === 'Product') {
-      return this.router.url.startsWith('/products');
-    }
-
-    if (item.label === 'Category') {
-      return this.router.url.startsWith('/categories');
-    }
-
-    if (item.label === 'Warehouses') {
-      return this.router.url.startsWith('/warehouses');
-    }
+    if (item.label === 'Product') return this.router.url.startsWith('/products');
+    if (item.label === 'Category') return this.router.url.startsWith('/categories');
+    if (item.label === 'Stock') return this.router.url.startsWith('/stock');
+    if (item.label === 'Warehouses') return this.router.url.startsWith('/warehouses');
+    if (item.label === 'Suppliers') return this.router.url.startsWith('/suppliers');
 
     return false;
   }

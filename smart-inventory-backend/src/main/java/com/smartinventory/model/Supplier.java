@@ -25,16 +25,22 @@ public class Supplier {
     private String address;
 
     @Column(name = "created_at")
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
 
-    public Supplier() {}
+    @Column(name = "is_deleted")
+    private Boolean isDeleted = false;
+
+    @PrePersist
+    public void onCreate() {
+        createdAt = LocalDateTime.now();
+
+        if (isDeleted == null) {
+            isDeleted = false;
+        }
+    }
 
     public Integer getId() {
         return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
     }
 
     public String getSupplierName() {
@@ -60,7 +66,7 @@ public class Supplier {
     public void setEmail(String email) {
         this.email = email;
     }
-    
+
     public String getPhone() {
         return phone;
     }
@@ -68,7 +74,7 @@ public class Supplier {
     public void setPhone(String phone) {
         this.phone = phone;
     }
-    
+
     public String getAddress() {
         return address;
     }
@@ -81,7 +87,11 @@ public class Supplier {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public Boolean getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(Boolean isDeleted) {
+        this.isDeleted = isDeleted;
     }
 }
