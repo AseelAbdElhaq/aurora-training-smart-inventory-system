@@ -12,6 +12,7 @@ type Role =
   | 'ADMIN'
   | 'INVENTORY_MANAGER'
   | 'WAREHOUSE_EMPLOYEE'
+  | 'EMPLOYEE'
   | 'PURCHASING_MANAGER';
 
 type ChildMenuItem = {
@@ -44,12 +45,12 @@ export class SidebarComponent {
       label: 'Home',
       icon: 'home',
       route: '/dashboard',
-      roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE', 'PURCHASING_MANAGER']
+      roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE', 'EMPLOYEE', 'PURCHASING_MANAGER']
     },
     {
       label: 'Product',
       icon: 'inventory_2',
-      roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE', 'PURCHASING_MANAGER'],
+      roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE', 'EMPLOYEE', 'PURCHASING_MANAGER'],
       children: [
         { label: 'Add Product', icon: 'add_box', route: '/products/add' },
         { label: 'Product List', icon: 'format_list_bulleted', route: '/products' }
@@ -65,15 +66,9 @@ export class SidebarComponent {
       ]
     },
     {
-      label: 'Dashboard Analytics',
-      icon: 'dashboard',
-      route: '/dashboard-analytics',
-      roles: ['ADMIN', 'INVENTORY_MANAGER']
-    },
-    {
       label: 'Stock',
       icon: 'assignment',
-      roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE'],
+      roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE', 'EMPLOYEE'],
       children: [
         { label: 'Add Stock', icon: 'add_box', route: '/stock/add' },
         { label: 'Stock List', icon: 'format_list_bulleted', route: '/stock' },
@@ -83,7 +78,7 @@ export class SidebarComponent {
     {
       label: 'Warehouses',
       icon: 'warehouse',
-      roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE'],
+      roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE', 'EMPLOYEE'],
       children: [
         { label: 'Add Warehouse', icon: 'add_box', route: '/warehouses/add' },
         { label: 'Warehouse List', icon: 'format_list_bulleted', route: '/warehouses' }
@@ -101,14 +96,17 @@ export class SidebarComponent {
     {
       label: 'Purchase Orders',
       icon: 'description',
-      route: '/purchase-orders',
-      roles: ['ADMIN', 'INVENTORY_MANAGER', 'PURCHASING_MANAGER']
+      roles: ['ADMIN', 'INVENTORY_MANAGER', 'PURCHASING_MANAGER'],
+      children: [
+        { label: 'Add Purchase Order', icon: 'add_box', route: '/purchase-orders/add' },
+        { label: 'Purchase Order List', icon: 'format_list_bulleted', route: '/purchase-orders' }
+      ]
     },
     {
       label: 'Sales Orders',
       icon: 'shopping_cart',
       route: '/sales-orders',
-      roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE']
+      roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE', 'EMPLOYEE']
     },
     {
       label: 'Reports',
@@ -157,12 +155,17 @@ export class SidebarComponent {
       });
   }
 
+  canShow(item: MenuItem): boolean {
+    return item.roles.includes(this.userRole);
+  }
+
   getParentRoute(label: string): string {
     if (label === 'Product') return '/products';
     if (label === 'Category') return '/categories';
     if (label === 'Stock') return '/stock';
     if (label === 'Warehouses') return '/warehouses';
     if (label === 'Suppliers') return '/suppliers';
+    if (label === 'Purchase Orders') return '/purchase-orders';
 
     return '/dashboard';
   }
@@ -193,27 +196,19 @@ export class SidebarComponent {
       return;
     }
 
+    if (url.startsWith('/purchase-orders')) {
+      this.openedMenu = 'Purchase Orders';
+      return;
+    }
+
     this.openedMenu = '';
-  }
-
-  canShow(item: MenuItem): boolean {
-    return item.roles.includes(this.userRole);
-  }
-
-  isActiveParent(item: MenuItem): boolean {
-    if (item.label === 'Product') return this.router.url.startsWith('/products');
-    if (item.label === 'Category') return this.router.url.startsWith('/categories');
-    if (item.label === 'Stock') return this.router.url.startsWith('/stock');
-    if (item.label === 'Warehouses') return this.router.url.startsWith('/warehouses');
-    if (item.label === 'Suppliers') return this.router.url.startsWith('/suppliers');
-
-    return false;
   }
 
   logout(): void {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.clear();
-      window.location.href = '/login';
     }
+
+    this.router.navigate(['/login']);
   }
 }

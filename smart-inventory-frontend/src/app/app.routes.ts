@@ -11,7 +11,9 @@ import { ProductDetailsComponent } from './pages/products/product-details/produc
 
 import { CategoryListComponent } from './pages/categories/category-list.component';
 import { CategoryFormComponent } from './pages/categories/category-form.component';
-
+import { PurchaseOrderFormComponent } from './pages/purchase-orders/purchase-order-form/purchase-order-form.component';
+import { PurchaseOrderListComponent } from './pages/purchase-orders/purchase-order-list/purchase-order-list.component';
+import { PurchaseOrderDetailsComponent } from './pages/purchase-orders/purchase-order-details/purchase-order-details.component';
 export const routes: Routes = [
   {
     path: 'login',
@@ -114,7 +116,22 @@ export const routes: Routes = [
           import('./pages/stock/stock-form/stock-form.component')
             .then(m => m.StockFormComponent)
       },
-
+      {
+        path: 'purchase-orders',
+        component: PurchaseOrderListComponent
+      },
+      {
+        path: 'purchase-orders/add',
+        component: PurchaseOrderFormComponent
+      },
+      {
+        path: 'purchase-orders/edit/:id',
+        component: PurchaseOrderFormComponent
+      },
+      {
+        path: 'purchase-orders/details/:id',
+        component: PurchaseOrderDetailsComponent
+      },
       {
         path: 'stock/transfer',
         loadComponent: () =>
@@ -142,7 +159,8 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/suppliers/supplier-form/supplier-form.component')
             .then(m => m.SupplierFormComponent)
-      }
+      },
+
     ]
   },
 

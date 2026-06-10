@@ -1,0 +1,147 @@
+<section class="purchase-page">
+  <div class="breadcrumb">
+    <span class="material-symbols-rounded">home</span>
+    <span>/</span>
+    <span>Purchase Orders</span>
+    <span>/</span>
+    <strong>Purchase Order List</strong>
+  </div>
+
+  <div class="page-header">
+    <div>
+      <h1>Purchase Orders</h1>
+      <p>Manage supplier orders, receive products, and update warehouse stock.</p>
+    </div>
+
+    <a routerLink="/purchase-orders/add" class="add-btn">
+      <span class="material-symbols-rounded">add</span>
+      Add Purchase Order
+    </a>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-box">
+      <span class="material-symbols-rounded">search</span>
+
+      <input
+        type="text"
+        placeholder="Search by PO number, supplier, or warehouse..."
+        [value]="searchText"
+        (input)="onSearch($event)"
+      />
+    </div>
+
+    <div class="filter-box">
+      <span class="material-symbols-rounded">filter_list</span>
+
+      <select [value]="selectedStatus" (change)="onStatusChange($event)">
+        <option value="ALL">All Orders</option>
+        <option value="PENDING">Pending</option>
+        <option value="RECEIVED">Received</option>
+        <option value="CANCELLED">Cancelled</option>
+      </select>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="loading-box">
+      <div>
+        <span class="material-symbols-rounded loading-icon">progress_activity</span>
+        <p>Loading purchase orders...</p>
+      </div>
+    </div>
+  } @else if (errorMessage) {
+    <div class="error-box">
+      <span class="material-symbols-rounded">error</span>
+      <p>{{ errorMessage }}</p>
+    </div>
+  } @else if (filteredOrders.length === 0) {
+    <div class="empty-box">
+      <span class="material-symbols-rounded">description</span>
+      <h3>No purchase orders found</h3>
+      <p>Create your first purchase order from suppliers.</p>
+    </div>
+  } @else {
+    <div class="orders-grid">
+      @for (order of filteredOrders; track order.id) {
+        <div class="order-card">
+          <div class="card-top">
+            <div>
+              <h3>PO-{{ order.id }}</h3>
+              <p>{{ order.createdAt | date:'mediumDate' }}</p>
+            </div>
+
+            <span class="status" [ngClass]="getStatusClass(order.status)">
+              {{ getStatusText(order.status) }}
+            </span>
+          </div>
+
+          <div class="info-row">
+            <span class="material-symbols-rounded">local_shipping</span>
+
+            <div>
+              <small>Supplier</small>
+              <strong>{{ order.supplier?.supplierName || 'No supplier' }}</strong>
+            </div>
+          </div>
+
+          <div class="info-row">
+            <span class="material-symbols-rounded">warehouse</span>
+
+            <div>
+              <small>Warehouse</small>
+              <strong>{{ order.warehouse?.warehouseName || 'No warehouse' }}</strong>
+            </div>
+          </div>
+
+          <div class="summary">
+            <div>
+              <small>Items</small>
+              <strong>{{ getItemsCount(order) }}</strong>
+            </div>
+
+            <div>
+              <small>Total Amount</small>
+              <strong>${{ order.totalAmount || 0 }}</strong>
+            </div>
+          </div>
+
+          <div class="actions">
+            @if (order.status === 'PENDING') {
+              <button
+                class="receive"
+                type="button"
+                title="Receive order"
+                (click)="receiveOrder(order.id)"
+              >
+                <span class="material-symbols-rounded">inventory</span>
+              </button>
+
+              <button
+                class="edit"
+                type="button"
+                title="Edit order"
+                (click)="editOrder(order.id)"
+              >
+                <span class="material-symbols-rounded">edit</span>
+              </button>
+
+              <button
+                class="cancel"
+                type="button"
+                title="Cancel order"
+                (click)="cancelOrder(order.id)"
+              >
+                <span class="material-symbols-rounded">block</span>
+              </button>
+            } @else {
+              <span class="locked-text">
+                {{ order.status === 'RECEIVED' ? 'Stock updated' : 'Order cancelled' }}
+              </span>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</section>

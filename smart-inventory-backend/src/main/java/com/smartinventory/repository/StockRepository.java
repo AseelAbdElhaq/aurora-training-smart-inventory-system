@@ -1,6 +1,8 @@
 package com.smartinventory.repository;
 
+import com.smartinventory.model.Product;
 import com.smartinventory.model.Stock;
+import com.smartinventory.model.Warehouse;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -15,4 +17,6 @@ public interface StockRepository extends JpaRepository<Stock, Integer> {
             Integer productId,
             Integer warehouseId
     );
+        Optional<Stock> findByProductAndWarehouse(Product product, Warehouse warehouse);
+
 }

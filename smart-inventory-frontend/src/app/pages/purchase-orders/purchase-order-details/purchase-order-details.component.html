@@ -1,0 +1,164 @@
+<section class="details-page">
+
+  <div class="breadcrumb">
+    <span class="material-symbols-rounded">home</span>
+    <span>/</span>
+    <span>Purchase Orders</span>
+    <span>/</span>
+    <strong>Purchase Order Details</strong>
+  </div>
+
+  @if (loading) {
+
+    <div class="loading-box">
+      <span class="material-symbols-rounded loading-icon">
+        progress_activity
+      </span>
+
+      <p>Loading purchase order...</p>
+    </div>
+
+  } @else if (errorMessage) {
+
+    <div class="error-box">
+      {{ errorMessage }}
+    </div>
+
+  } @else if (order) {
+
+    <div class="details-card">
+
+      <div class="top-section">
+
+        <div>
+          <h1>
+            Purchase Order #{{ order.id }}
+          </h1>
+
+          <p>
+            Created:
+            {{ order.createdAt | date:'medium' }}
+          </p>
+        </div>
+
+        <span
+          class="status"
+          [class]="getStatusClass(order.status)"
+        >
+          {{ order.status }}
+        </span>
+      </div>
+
+      <div class="info-grid">
+
+        <div class="info-box">
+          <small>Supplier</small>
+
+          <strong>
+            {{ order.supplier?.supplierName }}
+          </strong>
+        </div>
+
+        <div class="info-box">
+          <small>Warehouse</small>
+
+          <strong>
+            {{ order.warehouse?.warehouseName }}
+          </strong>
+        </div>
+
+        <div class="info-box">
+          <small>Total Items</small>
+
+          <strong>
+            {{ order.items.length }}
+          </strong>
+        </div>
+
+        <div class="info-box">
+          <small>Total Amount</small>
+
+          <strong>
+            ${{ order.totalAmount }}
+          </strong>
+        </div>
+
+      </div>
+
+      <div class="table-wrapper">
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>SKU</th>
+              <th>Quantity</th>
+              <th>Unit Price</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            @for (item of order.items; track item.id) {
+
+              <tr>
+
+                <td>
+                  {{ item.product?.productName }}
+                </td>
+
+                <td>
+                  {{ item.product?.sku }}
+                </td>
+
+                <td>
+                  {{ item.quantity }}
+                </td>
+
+                <td>
+                  ${{ item.unitPrice }}
+                </td>
+
+                <td>
+                  ${{ getItemTotal(item.quantity, item.unitPrice) }}
+                </td>
+
+              </tr>
+
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+      <div class="actions">
+
+        <a
+          class="back-btn"
+          routerLink="/purchase-orders"
+        >
+          Back
+        </a>
+
+        @if (order.status === 'PENDING') {
+
+          <a
+            class="edit-btn"
+            [routerLink]="['/purchase-orders/edit', order.id]"
+          >
+            Edit Order
+          </a>
+
+        }
+
+      </div>
+
+    </div>
+
+  }
+
+</section>
