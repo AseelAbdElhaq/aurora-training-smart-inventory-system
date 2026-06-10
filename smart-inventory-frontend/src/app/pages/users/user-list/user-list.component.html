@@ -1,0 +1,63 @@
+<div class="users-page">
+
+  <div class="page-header">
+    <div>
+      <h2>Users Management</h2>
+      <p>Admin can add, edit, and soft delete users</p>
+    </div>
+
+    <a routerLink="/users/add" class="add-btn">
+      Add User
+    </a>
+  </div>
+
+  @if (loading) {
+    <div class="empty-state">Loading users...</div>
+  } @else {
+    @if (users.length === 0) {
+      <div class="empty-state">No users found</div>
+    } @else {
+      <div class="users-grid">
+        @for (user of users; track user.id) {
+          <div class="user-card">
+
+            <div class="user-top">
+              <div class="avatar">
+                {{ user.fullName.charAt(0) }}
+              </div>
+
+              <div>
+                <h3>{{ user.fullName }}</h3>
+                <p>{{ user.username }}</p>
+              </div>
+            </div>
+
+            <div class="user-info">
+              <p><strong>Email:</strong> {{ user.email }}</p>
+              <p><strong>Phone:</strong> {{ user.phone }}</p>
+              <p><strong>Role:</strong> {{ roleName(user.roleId) }}</p>
+            </div>
+
+            <div class="user-actions">
+              <button
+                class="edit-btn"
+                [routerLink]="['/users/edit', user.id]"
+              >
+                Edit
+              </button>
+
+              <button
+                class="delete-btn"
+                (click)="deleteUser(user.id)"
+              >
+                Remove
+              </button>
+            </div>
+
+          </div>
+        }
+      </div>
+    }
+  }
+
+</div>

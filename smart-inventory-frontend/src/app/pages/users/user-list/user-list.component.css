@@ -1,0 +1,127 @@
+.users-page {
+  width: 100%;
+}
+
+.page-header {
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.page-header h2 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 900;
+  color: #111827;
+}
+
+.page-header p {
+  margin-top: 6px;
+  color: #6b7280;
+}
+
+.add-btn {
+  height: 46px;
+  padding: 0 22px;
+  border-radius: 14px;
+  background: #111827;
+  color: white;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+}
+
+.users-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 20px;
+}
+
+.user-card {
+  padding: 22px;
+  border-radius: 22px;
+  background: white;
+  border: 1px solid #ece7da;
+}
+
+.user-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.avatar {
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  background: #ffd35a;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  font-weight: 900;
+  color: #111827;
+}
+
+.user-top h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 900;
+  color: #111827;
+}
+
+.user-top p {
+  margin: 5px 0 0;
+  color: #6b7280;
+  font-weight: 700;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.user-info p {
+  margin: 0;
+  color: #374151;
+  font-size: 14px;
+}
+
+.user-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.edit-btn,
+.delete-btn {
+  flex: 1;
+  height: 42px;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.edit-btn {
+  background: #111827;
+  color: white;
+}
+
+.delete-btn {
+  background: #f8f2e3;
+  color: #111827;
+}
+
+.empty-state {
+  padding: 80px 20px;
+  border-radius: 24px;
+  background: white;
+  border: 1px dashed #d6d0c3;
+  text-align: center;
+  color: #6b7280;
+  font-weight: 700;
+}

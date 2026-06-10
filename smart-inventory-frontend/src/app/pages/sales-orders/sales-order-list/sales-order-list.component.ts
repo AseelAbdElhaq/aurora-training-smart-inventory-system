@@ -18,7 +18,7 @@ export class SalesOrderListComponent implements OnInit {
 
   orders: SalesOrder[] = [];
   filteredOrders: SalesOrder[] = [];
-
+userRole = localStorage.getItem('role') || 'ADMIN';
   loading = false;
   errorMessage = '';
 

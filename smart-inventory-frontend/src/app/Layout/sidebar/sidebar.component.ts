@@ -12,13 +12,13 @@ type Role =
   | 'ADMIN'
   | 'INVENTORY_MANAGER'
   | 'WAREHOUSE_EMPLOYEE'
-  | 'EMPLOYEE'
   | 'PURCHASING_MANAGER';
 
 type ChildMenuItem = {
   label: string;
   icon: string;
   route: string;
+  roles: Role[];
 };
 
 type MenuItem = {
@@ -45,15 +45,15 @@ export class SidebarComponent {
       label: 'Home',
       icon: 'home',
       route: '/dashboard',
-      roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE', 'EMPLOYEE', 'PURCHASING_MANAGER']
+      roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE', 'PURCHASING_MANAGER']
     },
     {
       label: 'Product',
       icon: 'inventory_2',
-      roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE', 'EMPLOYEE', 'PURCHASING_MANAGER'],
+      roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE', 'PURCHASING_MANAGER'],
       children: [
-        { label: 'Add Product', icon: 'add_box', route: '/products/add' },
-        { label: 'Product List', icon: 'format_list_bulleted', route: '/products' }
+        { label: 'Add Product', icon: 'add_box', route: '/products/add', roles: ['ADMIN', 'INVENTORY_MANAGER'] },
+        { label: 'Product List', icon: 'format_list_bulleted', route: '/products', roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE', 'PURCHASING_MANAGER'] }
       ]
     },
     {
@@ -61,27 +61,27 @@ export class SidebarComponent {
       icon: 'category',
       roles: ['ADMIN', 'INVENTORY_MANAGER'],
       children: [
-        { label: 'Add Category', icon: 'add_box', route: '/categories/add' },
-        { label: 'Category List', icon: 'format_list_bulleted', route: '/categories' }
+        { label: 'Add Category', icon: 'add_box', route: '/categories/add', roles: ['ADMIN', 'INVENTORY_MANAGER'] },
+        { label: 'Category List', icon: 'format_list_bulleted', route: '/categories', roles: ['ADMIN', 'INVENTORY_MANAGER'] }
       ]
     },
     {
       label: 'Stock',
       icon: 'assignment',
-      roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE', 'EMPLOYEE'],
+      roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE'],
       children: [
-        { label: 'Add Stock', icon: 'add_box', route: '/stock/add' },
-        { label: 'Stock List', icon: 'format_list_bulleted', route: '/stock' },
-        { label: 'Transfer Stock', icon: 'sync_alt', route: '/stock/transfer' }
+        { label: 'Add Stock', icon: 'add_box', route: '/stock/add', roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE'] },
+        { label: 'Stock List', icon: 'format_list_bulleted', route: '/stock', roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE'  ] },
+        { label: 'Transfer Stock', icon: 'sync_alt', route: '/stock/transfer', roles: ['ADMIN', 'INVENTORY_MANAGER'] }
       ]
     },
     {
       label: 'Warehouses',
       icon: 'warehouse',
-      roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE', 'EMPLOYEE'],
+      roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE'],
       children: [
-        { label: 'Add Warehouse', icon: 'add_box', route: '/warehouses/add' },
-        { label: 'Warehouse List', icon: 'format_list_bulleted', route: '/warehouses' }
+        { label: 'Add Warehouse', icon: 'add_box', route: '/warehouses/add', roles: ['ADMIN', 'INVENTORY_MANAGER'] },
+        { label: 'Warehouse List', icon: 'format_list_bulleted', route: '/warehouses', roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE'] }
       ]
     },
     {
@@ -89,8 +89,8 @@ export class SidebarComponent {
       icon: 'local_shipping',
       roles: ['ADMIN', 'PURCHASING_MANAGER'],
       children: [
-        { label: 'Add Supplier', icon: 'add_box', route: '/suppliers/add' },
-        { label: 'Supplier List', icon: 'format_list_bulleted', route: '/suppliers' }
+        { label: 'Add Supplier', icon: 'add_box', route: '/suppliers/add', roles: ['ADMIN', 'PURCHASING_MANAGER'] },
+        { label: 'Supplier List', icon: 'format_list_bulleted', route: '/suppliers', roles: ['ADMIN', 'PURCHASING_MANAGER'] }
       ]
     },
     {
@@ -98,15 +98,18 @@ export class SidebarComponent {
       icon: 'description',
       roles: ['ADMIN', 'INVENTORY_MANAGER', 'PURCHASING_MANAGER'],
       children: [
-        { label: 'Add Purchase Order', icon: 'add_box', route: '/purchase-orders/add' },
-        { label: 'Purchase Order List', icon: 'format_list_bulleted', route: '/purchase-orders' }
+        { label: 'Add Purchase Order', icon: 'add_box', route: '/purchase-orders/add', roles: ['ADMIN', 'INVENTORY_MANAGER', 'PURCHASING_MANAGER'] },
+        { label: 'Purchase Order List', icon: 'format_list_bulleted', route: '/purchase-orders', roles: ['ADMIN', 'INVENTORY_MANAGER', 'PURCHASING_MANAGER'] }
       ]
     },
     {
       label: 'Sales Orders',
       icon: 'shopping_cart',
-      route: '/sales-orders',
-      roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE', 'EMPLOYEE']
+      roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE'],
+      children: [
+        { label: 'Add Sales Order', icon: 'add_box', route: '/sales-orders/add', roles: ['ADMIN', 'INVENTORY_MANAGER'] },
+        { label: 'Sales Order List', icon: 'format_list_bulleted', route: '/sales-orders', roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE'] }
+      ]
     },
     {
       label: 'Reports',
@@ -159,6 +162,14 @@ export class SidebarComponent {
     return item.roles.includes(this.userRole);
   }
 
+  canShowChild(child: ChildMenuItem): boolean {
+    return child.roles.includes(this.userRole);
+  }
+
+  getVisibleChildren(item: MenuItem): ChildMenuItem[] {
+    return item.children?.filter(child => this.canShowChild(child)) || [];
+  }
+
   getParentRoute(label: string): string {
     if (label === 'Product') return '/products';
     if (label === 'Category') return '/categories';
@@ -166,6 +177,7 @@ export class SidebarComponent {
     if (label === 'Warehouses') return '/warehouses';
     if (label === 'Suppliers') return '/suppliers';
     if (label === 'Purchase Orders') return '/purchase-orders';
+    if (label === 'Sales Orders') return '/sales-orders';
 
     return '/dashboard';
   }
@@ -198,6 +210,11 @@ export class SidebarComponent {
 
     if (url.startsWith('/purchase-orders')) {
       this.openedMenu = 'Purchase Orders';
+      return;
+    }
+
+    if (url.startsWith('/sales-orders')) {
+      this.openedMenu = 'Sales Orders';
       return;
     }
 

@@ -13,10 +13,12 @@
       <p>Manage customer orders, complete sales, and decrease stock automatically.</p>
     </div>
 
-    <a routerLink="/sales-orders/add" class="add-btn">
-      <span class="material-symbols-rounded">add</span>
-      Add Sales Order
-    </a>
+    @if (userRole === 'ADMIN' || userRole === 'INVENTORY_MANAGER') {
+      <a routerLink="/sales-orders/add" class="add-btn">
+        <span class="material-symbols-rounded">add</span>
+        Add Sales Order
+      </a>
+    }
   </div>
 
   <div class="toolbar">
@@ -59,7 +61,7 @@
     <div class="empty-box">
       <span class="material-symbols-rounded">shopping_cart</span>
       <h3>No sales orders found</h3>
-      <p>Create your first customer sales order.</p>
+      <p>No customer sales orders available.</p>
     </div>
   } @else {
     <div class="orders-grid">
@@ -126,23 +128,25 @@
                 <span class="material-symbols-rounded">check_circle</span>
               </button>
 
-              <button
-                class="edit"
-                type="button"
-                title="Edit order"
-                (click)="editOrder(order.id)"
-              >
-                <span class="material-symbols-rounded">edit</span>
-              </button>
+              @if (userRole === 'ADMIN' || userRole === 'INVENTORY_MANAGER') {
+                <button
+                  class="edit"
+                  type="button"
+                  title="Edit order"
+                  (click)="editOrder(order.id)"
+                >
+                  <span class="material-symbols-rounded">edit</span>
+                </button>
 
-              <button
-                class="cancel"
-                type="button"
-                title="Cancel order"
-                (click)="cancelOrder(order.id)"
-              >
-                <span class="material-symbols-rounded">block</span>
-              </button>
+                <button
+                  class="cancel"
+                  type="button"
+                  title="Cancel order"
+                  (click)="cancelOrder(order.id)"
+                >
+                  <span class="material-symbols-rounded">block</span>
+                </button>
+              }
             } @else {
               <span class="locked-text">
                 {{ order.status === 'COMPLETED' ? 'Stock decreased' : 'Order cancelled' }}

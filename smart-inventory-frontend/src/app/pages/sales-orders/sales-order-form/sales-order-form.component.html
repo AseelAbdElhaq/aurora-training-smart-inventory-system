@@ -1,0 +1,131 @@
+<section class="sales-form-page">
+  <div class="breadcrumb">
+    <span class="material-symbols-rounded">home</span>
+    <span>/</span>
+    <span>Sales Orders</span>
+    <span>/</span>
+    <strong>{{ orderId ? 'Edit Sales Order' : 'Add Sales Order' }}</strong>
+  </div>
+
+  <div class="page-header">
+    <div>
+      <h1>{{ orderId ? 'Edit Sales Order' : 'Add Sales Order' }}</h1>
+      <p>Create customer orders and decrease stock when completed.</p>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="loading-box">
+      <div>
+        <span class="material-symbols-rounded loading-icon">progress_activity</span>
+        <p>Loading sales order...</p>
+      </div>
+    </div>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="submit()" class="form-card">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Customer Name</label>
+          <input type="text" formControlName="customerName" placeholder="Enter customer name" />
+
+          @if (form.get('customerName')?.touched && form.get('customerName')?.invalid) {
+            <small>Customer name is required</small>
+          }
+        </div>
+
+        <div class="form-group">
+          <label>Warehouse</label>
+
+          <select formControlName="warehouseId">
+            <option value="">Select warehouse</option>
+
+            @for (warehouse of warehouses; track warehouse.id) {
+              <option [value]="warehouse.id">
+                {{ warehouse.warehouseName }}
+              </option>
+            }
+          </select>
+
+          @if (form.get('warehouseId')?.touched && form.get('warehouseId')?.invalid) {
+            <small>Warehouse is required</small>
+          }
+        </div>
+      </div>
+
+      <div class="items-header">
+        <div>
+          <h3>Order Items</h3>
+          <p>Add products sold to the customer.</p>
+        </div>
+
+        <button type="button" class="add-item-btn" (click)="addItem()">
+          <span class="material-symbols-rounded">add</span>
+          Add Item
+        </button>
+      </div>
+
+      <div formArrayName="items" class="items-list">
+        @for (item of items.controls; track $index) {
+          <div [formGroupName]="$index" class="item-row">
+            <div class="form-group product-field">
+              <label>Product</label>
+
+              <select formControlName="productId" (change)="onProductChange($index)">
+                <option value="">Select product</option>
+
+                @for (product of products; track product.id) {
+                  <option [value]="product.id">
+                    {{ product.productName }} - {{ product.sku }}
+                  </option>
+                }
+              </select>
+            </div>
+
+            <div class="form-group qty-field">
+              <label>Quantity</label>
+              <input type="number" formControlName="quantity" min="1" />
+            </div>
+
+            <div class="form-group price-field">
+              <label>Unit Price</label>
+              <input type="number" formControlName="unitPrice" min="0" step="0.01" />
+            </div>
+
+            <div class="item-total">
+              <label>Total</label>
+              <strong>${{ getItemTotal($index) }}</strong>
+            </div>
+
+            <button
+              type="button"
+              class="remove-btn"
+              (click)="removeItem($index)"
+              [disabled]="items.length === 1"
+            >
+              <span class="material-symbols-rounded">delete</span>
+            </button>
+          </div>
+        }
+      </div>
+
+      <div class="total-box">
+        <span>Grand Total</span>
+        <strong>${{ getGrandTotal() }}</strong>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="cancel-btn" (click)="cancel()">
+          Cancel
+        </button>
+
+        <button type="submit" class="save-btn" [disabled]="saving">
+          @if (saving) {
+            Saving...
+          } @else {
+            {{ orderId ? 'Update Order' : 'Create Order' }}
+          }
+        </button>
+      </div>
+    </form>
+  }
+</section>

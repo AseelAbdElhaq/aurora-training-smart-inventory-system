@@ -35,7 +35,7 @@
 
             @if (openedMenu === item.label) {
               <div class="submenu">
-                @for (child of item.children; track child.label) {
+                @for (child of getVisibleChildren(item); track child.label) {
                   <a
                     class="submenu-item"
                     [routerLink]="child.route"

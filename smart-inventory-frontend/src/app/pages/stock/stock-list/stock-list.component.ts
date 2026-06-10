@@ -4,6 +4,13 @@ import { Router, RouterLink } from '@angular/router';
 
 import { StockService } from '../../../services/stock.service';
 
+type Role =
+  | 'ADMIN'
+  | 'INVENTORY_MANAGER'
+  | 'WAREHOUSE_EMPLOYEE'
+  | 'EMPLOYEE'
+  | 'PURCHASING_MANAGER';
+
 @Component({
   selector: 'app-stock-list',
   standalone: true,
@@ -17,13 +24,42 @@ export class StockListComponent implements OnInit {
 
   loading = true;
 
+  userRole: Role = 'ADMIN';
+
   constructor(
     private stockService: StockService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
+    this.userRole = (localStorage.getItem('role') as Role) || 'ADMIN';
     this.loadStocks();
+  }
+
+  canAddStock(): boolean {
+    return (
+      this.userRole === 'ADMIN' ||
+      this.userRole === 'INVENTORY_MANAGER' ||
+      this.userRole === 'WAREHOUSE_EMPLOYEE' ||
+      this.userRole === 'EMPLOYEE'
+    );
+  }
+
+  canTransferStock(): boolean {
+    return this.userRole === 'ADMIN' || this.userRole === 'INVENTORY_MANAGER';
+  }
+
+  canEditStock(): boolean {
+    return (
+      this.userRole === 'ADMIN' ||
+      this.userRole === 'INVENTORY_MANAGER' ||
+      this.userRole === 'WAREHOUSE_EMPLOYEE' ||
+      this.userRole === 'EMPLOYEE'
+    );
+  }
+
+  canDeleteStock(): boolean {
+    return this.userRole === 'ADMIN' || this.userRole === 'INVENTORY_MANAGER';
   }
 
   loadStocks(): void {
@@ -42,6 +78,11 @@ export class StockListComponent implements OnInit {
   }
 
   deleteStock(id: number): void {
+
+    if (!this.canDeleteStock()) {
+      alert('Access denied. You are not allowed to delete stock.');
+      return;
+    }
 
     const confirmed = confirm(
       'Are you sure you want to delete this stock?'

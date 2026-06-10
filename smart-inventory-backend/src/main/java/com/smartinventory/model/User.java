@@ -1,104 +1,67 @@
 package com.smartinventory.model;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
-    private Integer userId;
+    private Integer id;
 
     @Column(name = "full_name", nullable = false)
     private String fullName;
 
-    @Column(name = "username", nullable = false, unique = true)
-    private String username;
-
-    @Column(name = "email", nullable = false, unique = true)
+    @Column(nullable = false)
     private String email;
 
-    @Column(name = "password", nullable = false)
+    @Column(nullable = false)
     private String password;
 
-    @Column(name = "phone")
     private String phone;
 
-    @ManyToOne
-    @JoinColumn(name = "role_id")
-    private Role role;
+    @Column(name = "role_id")
+    private Long roleId;
 
     @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
 
-    public User() {
+    @Column(name = "user_id", insertable = false, updatable = false)
+    private Long userId;
+
+    @Column(name = "is_active")
+    private Boolean isActive = true;
+
+    private String username;
+    public String getRole() {
+    if (roleId == null) {
+        return "UNKNOWN";
     }
 
-    public Integer getUserId() {
-        return userId;
+    if (roleId == 1) {
+        return "ADMIN";
     }
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
+    if (roleId == 2) {
+        return "INVENTORY_MANAGER";
     }
 
-    public String getFullName() {
-        return fullName;
+    if (roleId == 3) {
+        return "PURCHASING_MANAGER";
     }
 
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
+    if (roleId == 4) {
+        return "WAREHOUSE_EMPLOYEE";
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
+    return "UNKNOWN";
+}
 }

@@ -7,13 +7,17 @@
     </div>
 
     <div class="header-actions">
-      <a routerLink="/stock/add" class="add-btn">
-        Add Stock
-      </a>
+      @if (canAddStock()) {
+        <a routerLink="/stock/add" class="add-btn">
+          Add Stock
+        </a>
+      }
 
-      <a routerLink="/stock/transfer" class="add-btn secondary-btn">
-        Transfer Stock
-      </a>
+      @if (canTransferStock()) {
+        <a routerLink="/stock/transfer" class="add-btn secondary-btn">
+          Transfer Stock
+        </a>
+      }
     </div>
   </div>
 
@@ -51,19 +55,23 @@
             </div>
 
             <div class="stock-actions">
-              <button
-                class="edit-btn"
-                [routerLink]="['/stock/edit', stock.id]"
-              >
-                Edit
-              </button>
+              @if (canEditStock()) {
+                <button
+                  class="edit-btn"
+                  [routerLink]="['/stock/edit', stock.id]"
+                >
+                  Edit
+                </button>
+              }
 
-              <button
-                class="delete-btn"
-                (click)="deleteStock(stock.id)"
-              >
-                Delete
-              </button>
+              @if (canDeleteStock()) {
+                <button
+                  class="delete-btn"
+                  (click)="deleteStock(stock.id)"
+                >
+                  Delete
+                </button>
+              }
             </div>
 
           </div>
