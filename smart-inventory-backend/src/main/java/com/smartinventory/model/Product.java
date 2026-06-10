@@ -23,7 +23,6 @@ public class Product {
 
     private BigDecimal price;
 
-    private Integer quantity = 0;
 
     @Column(name = "image_url", columnDefinition = "TEXT")
     private String imageUrl;
@@ -84,13 +83,8 @@ public class Product {
         this.price = price;
     }
 
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
+   
+    
 
     public String getImageUrl() {
         return imageUrl;

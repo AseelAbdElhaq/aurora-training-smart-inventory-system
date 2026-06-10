@@ -4,7 +4,7 @@
       <p class="page-label">Products</p>
       <h1>Product Management</h1>
       <p class="page-subtitle">
-        Manage products, suppliers, prices, and quantities.
+        Manage products, suppliers, prices, and stock references.
       </p>
     </div>
 
@@ -31,7 +31,14 @@
     </div>
 
     @if (loading) {
-      <p class="empty-message">Loading products...</p>
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+
+        <div>
+          <h3>Loading Products</h3>
+          <p>Please wait while inventory data is being loaded.</p>
+        </div>
+      </div>
     } @else {
       @if (products.length === 0) {
         <p class="empty-message">No products found.</p>
@@ -45,8 +52,7 @@
                 <th>Category</th>
                 <th>Supplier</th>
                 <th>Price</th>
-                <th>Qty</th>
-                <th>Status</th>
+                <th>Stock</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -58,7 +64,7 @@
                     <strong>{{ product.productName }}</strong>
                   </td>
 
-                  <td>{{ product.sku }}</td>
+                  <td>{{ product.sku || '-' }}</td>
 
                   <td>
                     {{ product.category?.categoryName || 'No Category' }}
@@ -68,17 +74,10 @@
                     {{ product.supplier?.supplierName || 'No Supplier' }}
                   </td>
 
-                  <td>${{ product.price }}</td>
-
-                  <td>{{ product.quantity }}</td>
+                  <td>${{ product.price || 0 }}</td>
 
                   <td>
-                    <span
-                      class="status"
-                      [class.low]="product.quantity <= 10"
-                    >
-                      {{ product.quantity <= 10 ? 'LOW STOCK' : 'ACTIVE' }}
-                    </span>
+                    <span class="stock-managed">Managed in Stock</span>
                   </td>
 
                   <td>
@@ -102,6 +101,7 @@
                       @if (canDelete()) {
                         <button
                           class="icon-btn danger"
+                          type="button"
                           (click)="deleteProduct(product.id)"
                         >
                           <span class="material-symbols-rounded">delete</span>

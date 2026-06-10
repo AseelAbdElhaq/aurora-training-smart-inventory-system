@@ -1,9 +1,15 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  Inject,
+  OnInit,
+  PLATFORM_ID
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
-import { Product, ProductService } from '../../../services/prouduct.service';
+import { Product, ProductService } from '../../../services/product.service';
 
 type Role =
   | 'ADMIN'
@@ -27,6 +33,7 @@ export class ProductListComponent implements OnInit {
 
   constructor(
     private productService: ProductService,
+    private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     if (isPlatformBrowser(this.platformId)) {
@@ -40,15 +47,19 @@ export class ProductListComponent implements OnInit {
 
   loadProducts(): void {
     this.loading = true;
+    this.cdr.detectChanges();
 
     this.productService.getProducts().subscribe({
       next: (data) => {
-        this.products = data;
+        this.products = Array.isArray(data) ? [...data] : [];
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (error) => {
-        console.error('Error loading products:', error);
+        console.error('PRODUCT LOAD ERROR:', error);
+        this.products = [];
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -61,12 +72,20 @@ export class ProductListComponent implements OnInit {
       return;
     }
 
+    this.loading = true;
+    this.cdr.detectChanges();
+
     this.productService.searchProducts(value).subscribe({
       next: (data) => {
-        this.products = data;
+        this.products = Array.isArray(data) ? [...data] : [];
+        this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (error) => {
-        console.error('Search error:', error);
+        console.error('PRODUCT SEARCH ERROR:', error);
+        this.products = [];
+        this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -74,16 +93,16 @@ export class ProductListComponent implements OnInit {
   deleteProduct(id: number | undefined): void {
     if (!id) return;
 
-    const confirmed = confirm('Are you sure you want to delete this product?');
-
+    const confirmed = confirm('Are you sure you want to archive this product?');
     if (!confirmed) return;
 
     this.productService.deleteProduct(id).subscribe({
       next: () => {
-        this.loadProducts();
+        this.products = this.products.filter(product => product.id !== id);
+        this.cdr.detectChanges();
       },
       error: (error) => {
-        console.error('Delete error:', error);
+        console.error('PRODUCT DELETE ERROR:', error);
       }
     });
   }
@@ -93,10 +112,6 @@ export class ProductListComponent implements OnInit {
   }
 
   canEdit(): boolean {
-    return this.userRole === 'ADMIN' || this.userRole === 'INVENTORY_MANAGER';
-  }
-
-  canArchive(): boolean {
     return this.userRole === 'ADMIN' || this.userRole === 'INVENTORY_MANAGER';
   }
 

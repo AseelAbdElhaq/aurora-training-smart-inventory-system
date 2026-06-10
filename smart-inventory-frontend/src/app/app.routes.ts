@@ -36,7 +36,8 @@ export const routes: Routes = [
 
       {
         path: 'products',
-        component: ProductListComponent
+        component: ProductListComponent,
+        runGuardsAndResolvers: 'always'
       },
 
       {

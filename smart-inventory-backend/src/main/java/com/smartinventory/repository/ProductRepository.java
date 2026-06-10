@@ -9,7 +9,9 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     List<Product> findByIsDeletedFalse();
 
-    List<Product> findByProductNameContainingIgnoreCaseAndIsDeletedFalse(String productName);
+    List<Product> findByProductNameContainingIgnoreCaseAndIsDeletedFalse(
+            String productName
+    );
 
-    boolean existsBySku(String sku);
+    boolean existsBySkuAndIsDeletedFalse(String sku);
 }

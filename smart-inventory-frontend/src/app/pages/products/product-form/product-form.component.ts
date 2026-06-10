@@ -1,9 +1,16 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  Inject,
+  OnInit,
+  PLATFORM_ID
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { forkJoin } from 'rxjs';
 
-import { Product, ProductService } from '../../../services/prouduct.service';
+import { Product, ProductService } from '../../../services/product.service';
 import { Category, CategoryService } from '../../../services/category.service';
 import { Supplier, SupplierService } from '../../../services/supplier.service';
 
@@ -24,6 +31,7 @@ export class ProductFormComponent implements OnInit {
   userRole: Role = 'ADMIN';
 
   productId: number | null = null;
+  loading = false;
 
   categories: Category[] = [];
   suppliers: Supplier[] = [];
@@ -36,7 +44,6 @@ export class ProductFormComponent implements OnInit {
     sku: '',
     description: '',
     price: 0,
-    quantity: 0,
     imageUrl: '',
     category: null,
     supplier: null
@@ -48,6 +55,7 @@ export class ProductFormComponent implements OnInit {
     private supplierService: SupplierService,
     private route: ActivatedRoute,
     private router: Router,
+    private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     if (isPlatformBrowser(this.platformId)) {
@@ -56,48 +64,68 @@ export class ProductFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadCategories();
-    this.loadSuppliers();
-
     const id = this.route.snapshot.paramMap.get('id');
+    this.productId = id ? Number(id) : null;
 
-    if (id) {
-      this.productId = Number(id);
-      this.loadProduct(this.productId);
+    this.loadFormData();
+  }
+
+  loadFormData(): void {
+    this.loading = true;
+    this.cdr.detectChanges();
+
+    if (this.productId) {
+      forkJoin({
+        categories: this.categoryService.getCategories(),
+        suppliers: this.supplierService.getSuppliers(),
+        product: this.productService.getProductById(this.productId)
+      }).subscribe({
+        next: ({ categories, suppliers, product }) => {
+          this.categories = Array.isArray(categories) ? categories : [];
+          this.suppliers = Array.isArray(suppliers) ? suppliers : [];
+
+          this.product = {
+            ...product,
+            productName: product.productName || '',
+            sku: product.sku || '',
+            description: product.description || '',
+            price: product.price || 0,
+            imageUrl: product.imageUrl || '',
+            category: product.category || null,
+            supplier: product.supplier || null
+          };
+
+          this.selectedCategoryId = product.category?.id ?? null;
+          this.selectedSupplierId = product.supplier?.id ?? null;
+
+          this.loading = false;
+          this.cdr.detectChanges();
+        },
+        error: (error) => {
+          console.error('PRODUCT FORM LOAD ERROR:', error);
+          this.loading = false;
+          this.cdr.detectChanges();
+        }
+      });
+
+      return;
     }
-  }
 
-  loadProduct(id: number): void {
-    this.productService.getProductById(id).subscribe({
-      next: (data) => {
-        this.product = data;
-        this.selectedCategoryId = data.category?.id || null;
-        this.selectedSupplierId = data.supplier?.id || null;
+    forkJoin({
+      categories: this.categoryService.getCategories(),
+      suppliers: this.supplierService.getSuppliers()
+    }).subscribe({
+      next: ({ categories, suppliers }) => {
+        this.categories = Array.isArray(categories) ? categories : [];
+        this.suppliers = Array.isArray(suppliers) ? suppliers : [];
+
+        this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (error) => {
-        console.error('Error loading product:', error);
-      }
-    });
-  }
-
-  loadCategories(): void {
-    this.categoryService.getCategories().subscribe({
-      next: (data) => {
-        this.categories = data;
-      },
-      error: (error) => {
-        console.error('Error loading categories:', error);
-      }
-    });
-  }
-
-  loadSuppliers(): void {
-    this.supplierService.getSuppliers().subscribe({
-      next: (data) => {
-        this.suppliers = data;
-      },
-      error: (error) => {
-        console.error('Error loading suppliers:', error);
+        console.error('FORM DATA LOAD ERROR:', error);
+        this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -107,6 +135,11 @@ export class ProductFormComponent implements OnInit {
   }
 
   saveProduct(): void {
+    if (!this.product.productName.trim()) {
+      alert('Product name is required');
+      return;
+    }
+
     this.product.category = this.selectedCategoryId
       ? { id: this.selectedCategoryId, categoryName: '' }
       : null;
@@ -121,7 +154,8 @@ export class ProductFormComponent implements OnInit {
           this.router.navigate(['/products']);
         },
         error: (error) => {
-          console.error('Update error:', error);
+          console.error('PRODUCT UPDATE ERROR:', error);
+          alert(error.error || 'Product update failed');
         }
       });
 
@@ -133,7 +167,8 @@ export class ProductFormComponent implements OnInit {
         this.router.navigate(['/products']);
       },
       error: (error) => {
-        console.error('Create error:', error);
+        console.error('PRODUCT CREATE ERROR:', error);
+        alert(error.error || 'Product create failed');
       }
     });
   }

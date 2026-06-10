@@ -30,7 +30,7 @@
           </div>
 
           <label>
-            Input Your Product Name
+            Product Name
             <input
               type="text"
               name="productName"
@@ -41,7 +41,7 @@
           </label>
 
           <label>
-            Input Your Descriptions Here
+            Description
             <textarea
               name="description"
               [(ngModel)]="product.description"
@@ -52,11 +52,11 @@
 
         <div class="form-card">
           <div class="card-title">
-            <h2>Price & Quantity</h2>
+            <h2>Price & Stock</h2>
             <span class="material-symbols-rounded">more_vert</span>
           </div>
 
-          <div class="two-grid">
+          <div class="price-stock-grid">
             <label>
               Price
               <input
@@ -67,15 +67,18 @@
               />
             </label>
 
-            <label>
-              Quantity
-              <input
-                type="number"
-                name="quantity"
-                [(ngModel)]="product.quantity"
-                placeholder="50"
-              />
-            </label>
+            <div class="stock-note-wrapper">
+              <div class="stock-note-icon">
+                <span class="material-symbols-rounded">inventory_2</span>
+              </div>
+
+              <div class="stock-note">
+                <h4>Stock Managed Separately</h4>
+                <p>
+                  Inventory quantities are controlled from the Stock page.
+                </p>
+              </div>
+            </div>
           </div>
 
           <label>

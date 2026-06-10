@@ -7,7 +7,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
   Product,
   ProductService
-} from '../../../services/prouduct.service';
+} from '../../../services/product.service';
 
 import {
   Warehouse,

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { Product, ProductService } from '../../../services/prouduct.service';
+import { Product, ProductService } from '../../../services/product.service';
 import { Warehouse, WarehouseService } from '../../../services/warehouse.service';
 import { StockService } from '../../../services/stock.service';
 

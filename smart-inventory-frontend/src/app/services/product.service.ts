@@ -23,7 +23,7 @@ export interface Product {
   sku: string;
   description: string;
   price: number;
-  quantity: number;
+quantity?: number;
   imageUrl?: string;
   category?: Category | null;
   supplier?: Supplier | null;
@@ -48,11 +48,10 @@ export class ProductService {
   }
 
   searchProducts(keyword: string): Observable<Product[]> {
-    return this.http.get<Product[]>(
-      `${this.apiUrl}/search?keyword=${keyword}`
-    );
-  }
-
+  return this.http.get<Product[]>(
+    `${this.apiUrl}/search?keyword=${encodeURIComponent(keyword)}`
+  );
+}
   addProduct(product: Product): Observable<Product> {
     return this.http.post<Product>(this.apiUrl, product);
   }
@@ -66,4 +65,5 @@ export class ProductService {
       responseType: 'text'
     });
   }
+  
 }

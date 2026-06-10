@@ -38,6 +38,7 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getProductById(@PathVariable Integer id) {
+
         return productRepository.findById(id)
                 .filter(product -> !Boolean.TRUE.equals(product.getIsDeleted()))
                 .map(ResponseEntity::ok)
@@ -46,6 +47,7 @@ public class ProductController {
 
     @GetMapping("/search")
     public List<Product> searchProducts(@RequestParam String keyword) {
+
         return productRepository
                 .findByProductNameContainingIgnoreCaseAndIsDeletedFalse(keyword);
     }
@@ -53,21 +55,36 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<?> createProduct(@RequestBody Product product) {
 
-        if (product.getSku() != null && productRepository.existsBySku(product.getSku())) {
+        if (
+                product.getSku() != null &&
+                productRepository.existsBySkuAndIsDeletedFalse(product.getSku())
+        ) {
             return ResponseEntity.badRequest().body("SKU already exists");
         }
 
         product.setIsDeleted(false);
 
-        if (product.getCategory() != null && product.getCategory().getId() != null) {
-            Category category = categoryRepository.findById(product.getCategory().getId())
+        if (
+                product.getCategory() != null &&
+                product.getCategory().getId() != null
+        ) {
+
+            Category category = categoryRepository
+                    .findById(product.getCategory().getId())
                     .orElse(null);
+
             product.setCategory(category);
         }
 
-        if (product.getSupplier() != null && product.getSupplier().getId() != null) {
-            Supplier supplier = supplierRepository.findById(product.getSupplier().getId())
+        if (
+                product.getSupplier() != null &&
+                product.getSupplier().getId() != null
+        ) {
+
+            Supplier supplier = supplierRepository
+                    .findById(product.getSupplier().getId())
                     .orElse(null);
+
             product.setSupplier(supplier);
         }
 
@@ -79,29 +96,63 @@ public class ProductController {
             @PathVariable Integer id,
             @RequestBody Product updatedProduct
     ) {
+
         return productRepository.findById(id)
                 .filter(product -> !Boolean.TRUE.equals(product.getIsDeleted()))
                 .map(product -> {
+
+                    if (
+                            updatedProduct.getSku() != null &&
+                            !updatedProduct.getSku().equals(product.getSku()) &&
+                            productRepository.existsBySkuAndIsDeletedFalse(
+                                    updatedProduct.getSku()
+                            )
+                    ) {
+
+                        return ResponseEntity
+                                .badRequest()
+                                .body("SKU already exists");
+                    }
+
                     product.setProductName(updatedProduct.getProductName());
+
                     product.setSku(updatedProduct.getSku());
+
                     product.setDescription(updatedProduct.getDescription());
+
                     product.setPrice(updatedProduct.getPrice());
-                    product.setQuantity(updatedProduct.getQuantity());
+
                     product.setImageUrl(updatedProduct.getImageUrl());
 
-                    if (updatedProduct.getCategory() != null && updatedProduct.getCategory().getId() != null) {
-                        Category category = categoryRepository.findById(updatedProduct.getCategory().getId())
+                    if (
+                            updatedProduct.getCategory() != null &&
+                            updatedProduct.getCategory().getId() != null
+                    ) {
+
+                        Category category = categoryRepository
+                                .findById(updatedProduct.getCategory().getId())
                                 .orElse(null);
+
                         product.setCategory(category);
+
                     } else {
+
                         product.setCategory(null);
                     }
 
-                    if (updatedProduct.getSupplier() != null && updatedProduct.getSupplier().getId() != null) {
-                        Supplier supplier = supplierRepository.findById(updatedProduct.getSupplier().getId())
+                    if (
+                            updatedProduct.getSupplier() != null &&
+                            updatedProduct.getSupplier().getId() != null
+                    ) {
+
+                        Supplier supplier = supplierRepository
+                                .findById(updatedProduct.getSupplier().getId())
                                 .orElse(null);
+
                         product.setSupplier(supplier);
+
                     } else {
+
                         product.setSupplier(null);
                     }
 
@@ -112,15 +163,21 @@ public class ProductController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteProduct(@PathVariable Integer id) {
+
         Product product = productRepository.findById(id).orElse(null);
 
-        if (product == null || Boolean.TRUE.equals(product.getIsDeleted())) {
+        if (
+                product == null ||
+                Boolean.TRUE.equals(product.getIsDeleted())
+        ) {
+
             return ResponseEntity.notFound().build();
         }
 
         product.setIsDeleted(true);
+
         productRepository.save(product);
 
-        return ResponseEntity.ok("Product deleted successfully");
+        return ResponseEntity.ok("Product archived successfully");
     }
 }
