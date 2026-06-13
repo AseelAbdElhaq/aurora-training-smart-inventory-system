@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
@@ -17,11 +17,12 @@ import {
 export class UserListComponent implements OnInit {
 
   users: User[] = [];
-
-  loading = true;
+  loading = false;
+  errorMessage = '';
 
   constructor(
-    private userService: UserService
+    private userService: UserService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -29,59 +30,71 @@ export class UserListComponent implements OnInit {
   }
 
   loadUsers(): void {
-
     this.loading = true;
+    this.errorMessage = '';
+    this.cdr.detectChanges();
 
     this.userService.getUsers().subscribe({
-      next: (data) => {
-        this.users = data;
+      next: data => {
+        this.users = [...(data || [])];
         this.loading = false;
+        this.cdr.detectChanges();
       },
-
-      error: () => {
+      error: error => {
+        console.error('Users load error:', error);
+        this.users = [];
         this.loading = false;
+        this.errorMessage = error.error || 'Failed to load users';
+        this.cdr.detectChanges();
       }
     });
   }
 
-  roleName(roleId: number): string {
-
-    if (roleId === 1) {
-      return 'ADMIN';
-    }
-
-    if (roleId === 2) {
-      return 'INVENTORY MANAGER';
-    }
-
-    if (roleId === 3) {
-      return 'PURCHASING MANAGER';
-    }
-
-    if (roleId === 4) {
-      return 'EMPLOYEE';
-    }
+  roleName(roleId?: number): string {
+    if (roleId === 1) return 'ADMIN';
+    if (roleId === 2) return 'INVENTORY MANAGER';
+    if (roleId === 3) return 'PURCHASING MANAGER';
+    if (roleId === 4) return 'EMPLOYEE';
 
     return 'UNKNOWN';
   }
 
+  getDisplayName(user: User): string {
+    if (user.roleId === 1 && user.email === 'admin1@gmail.com') {
+      return 'Ahmad Al-Kurd';
+    }
+
+    return user.fullName || 'No name';
+  }
+
+  getDisplayEmail(user: User): string {
+    if (user.roleId === 1 && user.email === 'admin1@gmail.com') {
+      return 'ahmad.admin@inventra.com';
+    }
+
+    return user.email || 'No email';
+  }
+
+  getInitial(name?: string): string {
+    if (!name || name.trim().length === 0) return 'U';
+    return name.trim().charAt(0).toUpperCase();
+  }
+
   deleteUser(id?: number): void {
+    if (!id) return;
 
-    if (!id) {
+    if (!confirm('Are you sure you want to remove this user?')) {
       return;
     }
 
-    const confirmed = confirm(
-      'Are you sure you want to remove this user?'
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
-    this.userService.deleteUser(id)
-      .subscribe(() => {
+    this.userService.deleteUser(id).subscribe({
+      next: () => {
         this.loadUsers();
-      });
+      },
+      error: error => {
+        console.error('Delete user error:', error);
+        alert(error.error || 'Failed to remove user');
+      }
+    });
   }
 }

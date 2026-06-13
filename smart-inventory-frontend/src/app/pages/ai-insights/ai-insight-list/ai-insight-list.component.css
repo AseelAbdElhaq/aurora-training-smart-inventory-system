@@ -1,0 +1,142 @@
+.page {
+  padding: 10px;
+    padding-bottom: 65px;
+
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 34px;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 42px;
+  font-weight: 900;
+  color: #111827;
+}
+
+.page-header p {
+  margin: 10px 0 0;
+  color: #6b7280;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.primary-btn {
+  border: none;
+  background: #111827;
+  color: #ffffff;
+  padding: 14px 24px;
+  border-radius: 16px;
+  cursor: pointer;
+  font-weight: 900;
+  box-shadow: 0 12px 24px rgba(17, 24, 39, 0.15);
+}
+
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+.insight-card {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid #e7dfcf;
+  border-radius: 26px;
+  padding: 24px;
+  box-shadow: 0 14px 34px rgba(17, 24, 39, 0.06);
+  transition: 0.2s ease;
+}
+
+.insight-card:hover {
+  transform: translateY(-4px);
+}
+
+.type {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.4px;
+  background: #fff4cc;
+  color: #9a6a00;
+}
+
+.insight-card h3 {
+  margin: 20px 0 12px;
+  color: #111827;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.insight-card p {
+  margin: 0;
+  color: #5f6470;
+  line-height: 1.5;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.recommendation {
+  background: #f8f2e3;
+  border: 1px solid #efe3c8;
+  border-radius: 18px;
+  padding: 16px;
+  margin-top: 20px;
+  display: grid;
+  gap: 8px;
+}
+
+.recommendation strong {
+  color: #111827;
+  font-weight: 900;
+}
+
+.recommendation span {
+  color: #374151;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.empty {
+  background: #ffffff;
+  border: 1px solid #e7dfcf;
+  padding: 34px;
+  border-radius: 24px;
+  text-align: center;
+  color: #6b7280;
+  font-weight: 800;
+}
+
+.error {
+  color: #b91c1c;
+}
+
+@media (max-width: 1200px) {
+  .insights-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .insights-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+
+  margin-bottom: 50px; 
+}
+}

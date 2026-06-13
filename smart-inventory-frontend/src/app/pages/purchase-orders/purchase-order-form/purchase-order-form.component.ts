@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormArray,
@@ -42,7 +42,8 @@ export class PurchaseOrderFormComponent implements OnInit {
     private warehouseService: WarehouseService,
     private purchaseOrderService: PurchaseOrderService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -81,36 +82,63 @@ export class PurchaseOrderFormComponent implements OnInit {
 
   addItem(): void {
     this.items.push(this.createItem());
+    this.cdr.detectChanges();
   }
 
   removeItem(index: number): void {
     if (this.items.length === 1) return;
 
     this.items.removeAt(index);
+    this.cdr.detectChanges();
   }
 
   loadDropdowns(): void {
     this.supplierService.getSuppliers().subscribe({
-      next: data => this.suppliers = data
+      next: data => {
+        this.suppliers = [...(data || [])];
+        this.cdr.detectChanges();
+      },
+      error: error => {
+        console.error('Suppliers load error:', error);
+        this.suppliers = [];
+        this.cdr.detectChanges();
+      }
     });
 
     this.productService.getProducts().subscribe({
-      next: data => this.products = data
+      next: data => {
+        this.products = [...(data || [])];
+        this.cdr.detectChanges();
+      },
+      error: error => {
+        console.error('Products load error:', error);
+        this.products = [];
+        this.cdr.detectChanges();
+      }
     });
 
     this.warehouseService.getWarehouses().subscribe({
-      next: data => this.warehouses = data
+      next: data => {
+        this.warehouses = [...(data || [])];
+        this.cdr.detectChanges();
+      },
+      error: error => {
+        console.error('Warehouses load error:', error);
+        this.warehouses = [];
+        this.cdr.detectChanges();
+      }
     });
   }
 
   loadOrder(id: number): void {
     this.loading = true;
+    this.cdr.detectChanges();
 
     this.purchaseOrderService.getOrderById(id).subscribe({
       next: order => {
         this.form.patchValue({
-          supplierId: order.supplier?.id,
-          warehouseId: order.warehouse?.id
+          supplierId: order.supplier?.id || '',
+          warehouseId: order.warehouse?.id || ''
         });
 
         this.items.clear();
@@ -118,9 +146,9 @@ export class PurchaseOrderFormComponent implements OnInit {
         for (const item of order.items || []) {
           this.items.push(
             this.fb.group({
-              productId: [item.product?.id, Validators.required],
-              quantity: [item.quantity, [Validators.required, Validators.min(1)]],
-              unitPrice: [item.unitPrice, [Validators.required, Validators.min(0)]]
+              productId: [item.product?.id || '', Validators.required],
+              quantity: [item.quantity || 1, [Validators.required, Validators.min(1)]],
+              unitPrice: [item.unitPrice || 0, [Validators.required, Validators.min(0)]]
             })
           );
         }
@@ -130,9 +158,12 @@ export class PurchaseOrderFormComponent implements OnInit {
         }
 
         this.loading = false;
+        this.cdr.detectChanges();
       },
-      error: () => {
+      error: error => {
+        console.error('Purchase order load error:', error);
         this.loading = false;
+        this.cdr.detectChanges();
         alert('Failed to load purchase order');
       }
     });
@@ -142,13 +173,15 @@ export class PurchaseOrderFormComponent implements OnInit {
     const row = this.items.at(index);
     const productId = Number(row.get('productId')?.value);
 
-    const product = this.products.find(p => p.id === productId);
+    const product = this.products.find(p => Number(p.id) === productId);
 
     if (product) {
       row.patchValue({
-        unitPrice: product.price || 0
+        unitPrice: Number(product.price) || 0
       });
     }
+
+    this.cdr.detectChanges();
   }
 
   getItemTotal(index: number): number {
@@ -169,10 +202,12 @@ export class PurchaseOrderFormComponent implements OnInit {
   submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.cdr.detectChanges();
       return;
     }
 
     this.saving = true;
+    this.cdr.detectChanges();
 
     const value = this.form.value;
 
@@ -204,10 +239,16 @@ export class PurchaseOrderFormComponent implements OnInit {
     request.subscribe({
       next: () => {
         this.saving = false;
-        this.router.navigate(['/purchase-orders']);
+        this.cdr.detectChanges();
+
+        this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+          this.router.navigate(['/purchase-orders']);
+        });
       },
       error: error => {
+        console.error('Save purchase order error:', error);
         this.saving = false;
+        this.cdr.detectChanges();
         alert(error.error || 'Failed to save purchase order');
       }
     });

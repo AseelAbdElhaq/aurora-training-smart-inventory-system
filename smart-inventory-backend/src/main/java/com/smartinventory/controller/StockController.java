@@ -40,46 +40,69 @@ public class StockController {
         return stockRepository.findById(id).orElseThrow();
     }
 
+    @GetMapping("/product-locations/{productId}")
+    public List<Stock> getProductLocations(@PathVariable Integer productId) {
+        return stockRepository.findByProductIdAndIsDeletedFalse(productId);
+    }
+
+    @GetMapping("/availability")
+    public StockAvailability getAvailability(
+            @RequestParam Integer productId,
+            @RequestParam Integer sourceWarehouseId,
+            @RequestParam Integer destinationWarehouseId
+    ) {
+        Stock sourceStock = stockRepository
+                .findByProductIdAndWarehouseIdAndIsDeletedFalse(productId, sourceWarehouseId)
+                .orElse(null);
+
+        Warehouse sourceWarehouse = warehouseRepository.findById(sourceWarehouseId).orElseThrow();
+        Warehouse destinationWarehouse = warehouseRepository.findById(destinationWarehouseId).orElseThrow();
+
+        StockAvailability result = new StockAvailability();
+
+        result.availableQuantity = sourceStock == null ? 0 : sourceStock.getQuantity();
+
+        result.sourceWarehouseName = sourceWarehouse.getWarehouseName();
+        result.sourceCurrentCapacity = sourceWarehouse.getCurrentCapacity();
+        result.sourceTotalCapacity = sourceWarehouse.getCapacity();
+        result.sourceFreeSpace = sourceWarehouse.getCapacity() - sourceWarehouse.getCurrentCapacity();
+
+        result.destinationWarehouseName = destinationWarehouse.getWarehouseName();
+        result.destinationCurrentCapacity = destinationWarehouse.getCurrentCapacity();
+        result.destinationTotalCapacity = destinationWarehouse.getCapacity();
+        result.destinationFreeSpace = destinationWarehouse.getCapacity() - destinationWarehouse.getCurrentCapacity();
+
+        return result;
+    }
+
     @PostMapping
     public Stock createStock(@RequestBody StockRequest request) {
         Product product = productRepository.findById(request.productId).orElseThrow();
         Warehouse warehouse = warehouseRepository.findById(request.warehouseId).orElseThrow();
 
         Stock stock = new Stock();
-
         stock.setProduct(product);
         stock.setWarehouse(warehouse);
         stock.setQuantity(request.quantity);
         stock.setIsDeleted(false);
 
-        warehouse.setCurrentCapacity(
-                warehouse.getCurrentCapacity() + request.quantity
-        );
-
+        warehouse.setCurrentCapacity(warehouse.getCurrentCapacity() + request.quantity);
         warehouseRepository.save(warehouse);
 
         return stockRepository.save(stock);
     }
 
     @PutMapping("/{id}")
-    public Stock updateStock(
-            @PathVariable Integer id,
-            @RequestBody StockRequest request
-    ) {
+    public Stock updateStock(@PathVariable Integer id, @RequestBody StockRequest request) {
         Stock stock = stockRepository.findById(id).orElseThrow();
 
         Warehouse oldWarehouse = stock.getWarehouse();
-
-        oldWarehouse.setCurrentCapacity(
-                oldWarehouse.getCurrentCapacity() - stock.getQuantity()
-        );
+        oldWarehouse.setCurrentCapacity(oldWarehouse.getCurrentCapacity() - stock.getQuantity());
 
         Product product = productRepository.findById(request.productId).orElseThrow();
         Warehouse newWarehouse = warehouseRepository.findById(request.warehouseId).orElseThrow();
 
-        newWarehouse.setCurrentCapacity(
-                newWarehouse.getCurrentCapacity() + request.quantity
-        );
+        newWarehouse.setCurrentCapacity(newWarehouse.getCurrentCapacity() + request.quantity);
 
         warehouseRepository.save(oldWarehouse);
         warehouseRepository.save(newWarehouse);
@@ -97,15 +120,11 @@ public class StockController {
         Stock stock = stockRepository.findById(id).orElseThrow();
 
         Warehouse warehouse = stock.getWarehouse();
-
-        warehouse.setCurrentCapacity(
-                warehouse.getCurrentCapacity() - stock.getQuantity()
-        );
+        warehouse.setCurrentCapacity(warehouse.getCurrentCapacity() - stock.getQuantity());
 
         warehouseRepository.save(warehouse);
 
         stock.setIsDeleted(true);
-
         stockRepository.save(stock);
     }
 
@@ -130,10 +149,7 @@ public class StockController {
                 .findById(request.destinationWarehouseId)
                 .orElseThrow();
 
-        if (
-                destinationWarehouse.getCurrentCapacity() + request.quantity >
-                destinationWarehouse.getCapacity()
-        ) {
+        if (destinationWarehouse.getCurrentCapacity() + request.quantity > destinationWarehouse.getCapacity()) {
             throw new RuntimeException("Destination warehouse does not have enough capacity");
         }
 
@@ -155,18 +171,10 @@ public class StockController {
         }
 
         sourceStock.setQuantity(sourceStock.getQuantity() - request.quantity);
+        destinationStock.setQuantity(destinationStock.getQuantity() + request.quantity);
 
-        destinationStock.setQuantity(
-                destinationStock.getQuantity() + request.quantity
-        );
-
-        sourceWarehouse.setCurrentCapacity(
-                sourceWarehouse.getCurrentCapacity() - request.quantity
-        );
-
-        destinationWarehouse.setCurrentCapacity(
-                destinationWarehouse.getCurrentCapacity() + request.quantity
-        );
+        sourceWarehouse.setCurrentCapacity(sourceWarehouse.getCurrentCapacity() - request.quantity);
+        destinationWarehouse.setCurrentCapacity(destinationWarehouse.getCurrentCapacity() + request.quantity);
 
         stockRepository.save(sourceStock);
         stockRepository.save(destinationStock);
@@ -189,5 +197,19 @@ public class StockController {
         public Integer destinationWarehouseId;
         public Integer quantity;
         public String notes;
+    }
+
+    public static class StockAvailability {
+        public Integer availableQuantity;
+
+        public String sourceWarehouseName;
+        public Integer sourceCurrentCapacity;
+        public Integer sourceTotalCapacity;
+        public Integer sourceFreeSpace;
+
+        public String destinationWarehouseName;
+        public Integer destinationCurrentCapacity;
+        public Integer destinationTotalCapacity;
+        public Integer destinationFreeSpace;
     }
 }

@@ -1,80 +1,204 @@
 <div class="transfer-page">
   <div class="transfer-card">
-
     <div class="form-header">
       <h2>Stock Transfer</h2>
       <p>Move product quantity from one warehouse to another</p>
+
+      @if (errorMessage) {
+        <div class="error-box">
+          {{ errorMessage }}
+        </div>
+      }
     </div>
 
-    <div class="form-grid">
+    @if (loading) {
+      <div class="empty-box">
+        Loading products and warehouses...
+      </div>
+    } @else {
+      <div class="form-grid">
+        <div class="form-group full-width">
+          <label>Product</label>
 
-      <div class="form-group full-width">
-        <label>Product</label>
+          <select
+            [(ngModel)]="transferData.productId"
+            (change)="onProductChange()"
+          >
+            <option value="">Select Product</option>
 
-        <select [(ngModel)]="transferData.productId">
-          <option value="">Select Product</option>
+            @for (product of products; track product.id) {
+              <option [value]="product.id">
+                {{ product.productName }}
+              </option>
+            }
+          </select>
+        </div>
 
-          @for (product of products; track product.id) {
-            <option [value]="product.id">
-              {{ product.productName }}
-            </option>
-          }
-        </select>
+        @if (productLocations.length > 0) {
+          <div class="product-locations full-width">
+            <h3>Warehouses Containing This Product</h3>
+
+            <div class="location-grid">
+              @for (item of productLocations; track item.id) {
+                <div class="location-card">
+                  <span class="material-symbols-rounded">warehouse</span>
+
+                  <div>
+                    <strong>{{ item.warehouse?.warehouseName }}</strong>
+                    <p>Available Quantity: {{ item.quantity }}</p>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        @if (transferData.productId && productLocations.length === 0) {
+          <div class="empty-box full-width">
+            This product is not available in any warehouse.
+          </div>
+        }
+
+        <div class="form-group">
+          <label>From Warehouse</label>
+
+          <select
+            [(ngModel)]="transferData.sourceWarehouseId"
+            (change)="onWarehouseChange()"
+          >
+            <option value="">Select Source Warehouse</option>
+
+            @for (warehouse of sourceWarehouses; track warehouse.id) {
+              <option [value]="warehouse.id">
+                {{ warehouse.warehouseName }}
+              </option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>To Warehouse</label>
+
+          <select
+            [(ngModel)]="transferData.destinationWarehouseId"
+            (change)="loadAvailability()"
+          >
+            <option value="">Select Destination Warehouse</option>
+
+            @for (warehouse of destinationWarehouses; track warehouse.id) {
+              <option [value]="warehouse.id">
+                {{ warehouse.warehouseName }}
+              </option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Quantity</label>
+
+          <input
+            type="number"
+            min="1"
+            [(ngModel)]="transferData.quantity"
+            placeholder="Enter quantity"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Notes</label>
+
+          <input
+            type="text"
+            [(ngModel)]="transferData.notes"
+            placeholder="Optional notes"
+          />
+        </div>
       </div>
 
-      <div class="form-group">
-        <label>From Warehouse</label>
+      @if (transferData.sourceWarehouseId) {
+        <div class="selected-stock-box">
+          <span class="material-symbols-rounded">inventory_2</span>
 
-        <select [(ngModel)]="transferData.sourceWarehouseId">
-          <option value="">Select Source Warehouse</option>
+          <div>
+            <small>Selected source stock quantity</small>
+            <strong>{{ getSelectedSourceStock() }}</strong>
+          </div>
+        </div>
 
-          @for (warehouse of warehouses; track warehouse.id) {
-            <option [value]="warehouse.id">
-              {{ warehouse.warehouseName }}
-            </option>
-          }
-        </select>
-      </div>
+        <div class="suggestion-box">
+          <span class="material-symbols-rounded">auto_awesome</span>
 
-      <div class="form-group">
-        <label>To Warehouse</label>
+          <div>
+            <small>AI helper suggestion</small>
+            <strong>{{ getBestDestinationText() }}</strong>
+            <p>
+              The system suggests the warehouse with the highest available capacity.
+            </p>
+          </div>
+        </div>
+      }
 
-        <select [(ngModel)]="transferData.destinationWarehouseId">
-          <option value="">Select Destination Warehouse</option>
+      @if (availability) {
+        <div class="info-grid">
+          <div class="info-card product-stock">
+            <span class="material-symbols-rounded">inventory_2</span>
+            <small>Available Product Stock</small>
+            <strong>{{ availability.availableQuantity }}</strong>
 
-          @for (warehouse of warehouses; track warehouse.id) {
-            <option [value]="warehouse.id">
-              {{ warehouse.warehouseName }}
-            </option>
-          }
-        </select>
-      </div>
+            @if (!hasEnoughStock()) {
+              <p class="warning-text">Transfer quantity is bigger than available stock.</p>
+            }
+          </div>
 
-      <div class="form-group">
-        <label>Quantity</label>
+          <div class="info-card">
+            <span class="material-symbols-rounded">warehouse</span>
+            <small>Source Warehouse</small>
+            <h3>{{ availability.sourceWarehouseName }}</h3>
 
-        <input
-          type="number"
-          [(ngModel)]="transferData.quantity"
-          placeholder="Enter quantity"
-        />
-      </div>
+            <div class="capacity-row">
+              <span>Used</span>
+              <b>{{ availability.sourceCurrentCapacity }} / {{ availability.sourceTotalCapacity }}</b>
+            </div>
 
-      <div class="form-group">
-        <label>Notes</label>
+            <div class="progress-bar">
+              <div
+                class="progress-fill source"
+                [style.width.%]="getSourceUsage()"
+              ></div>
+            </div>
 
-        <input
-          type="text"
-          [(ngModel)]="transferData.notes"
-          placeholder="Optional notes"
-        />
-      </div>
+            <p>Free Space: {{ availability.sourceFreeSpace }}</p>
+          </div>
 
-    </div>
+          <div class="info-card">
+            <span class="material-symbols-rounded">move_down</span>
+            <small>Destination Warehouse</small>
+            <h3>{{ availability.destinationWarehouseName }}</h3>
 
-    <button class="save-btn" type="button" (click)="transferStock()">
-      Transfer Stock
-    </button>
+            <div class="capacity-row">
+              <span>Used</span>
+              <b>{{ availability.destinationCurrentCapacity }} / {{ availability.destinationTotalCapacity }}</b>
+            </div>
 
+            <div class="progress-bar">
+              <div
+                class="progress-fill destination"
+                [style.width.%]="getDestinationUsage()"
+              ></div>
+            </div>
+
+            <p>Free Space: {{ availability.destinationFreeSpace }}</p>
+
+            @if (!hasEnoughCapacity()) {
+              <p class="warning-text">Destination warehouse does not have enough space.</p>
+            }
+          </div>
+        </div>
+      }
+
+      <button class="save-btn" type="button" (click)="transferStock()">
+        Transfer Stock
+      </button>
+    }
   </div>
 </div>

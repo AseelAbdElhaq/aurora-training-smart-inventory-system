@@ -41,8 +41,7 @@
     <div class="panel overview-panel">
       <div class="panel-header">
         <h3>Inventory Overview</h3>
-
-        <button>This Week</button>
+        <button>Real Data</button>
       </div>
 
       <div class="area-chart">
@@ -86,14 +85,14 @@
 
       <div class="status-content">
         <div class="donut">
-          <strong>78%</strong>
-          <span>Healthy</span>
+          <strong>Live</strong>
+          <span>Stock</span>
         </div>
 
         <div class="legend">
-          <p><span class="dot green"></span> In Stock <b>78%</b></p>
-          <p><span class="dot yellow"></span> Low Stock <b>15%</b></p>
-          <p><span class="dot red"></span> Out of Stock <b>7%</b></p>
+          <p><span class="dot green"></span> Products <b>{{ cards[0].value }}</b></p>
+          <p><span class="dot yellow"></span> Stock Units <b>{{ cards[2].value }}</b></p>
+          <p><span class="dot red"></span> Low Stock <b>{{ cards[3].value }}</b></p>
         </div>
       </div>
     </div>
@@ -101,45 +100,63 @@
     <div class="panel activities-panel">
       <div class="panel-header">
         <h3>Recent Activities</h3>
-        <button>View all</button>
+        <button>Live</button>
       </div>
 
-      <div class="activity-list">
-        @for (activity of activities; track activity.title) {
-          <div class="activity">
-            <div class="activity-icon">
-              <span class="material-symbols-rounded">{{ activity.icon }}</span>
-            </div>
+      @if (activities.length === 0) {
+        <div class="empty-dashboard-box">
+          No recent stock activities.
+        </div>
+      } @else {
+        <div class="activity-list">
+          @for (activity of activities; track activity.title + activity.movementDate) {
+            <div class="activity">
+              <div class="activity-icon">
+                <span class="material-symbols-rounded">
+                  {{ getActivityIcon(activity.movementType) }}
+                </span>
+              </div>
 
-            <div>
-              <strong>{{ activity.title }}</strong>
-              <p>{{ activity.time }}</p>
+              <div>
+                <strong>{{ activity.title }}</strong>
+                <p>
+                  {{ activity.warehouseName }}
+                  • Qty: {{ activity.quantity }}
+                  • {{ formatDate(activity.movementDate) }}
+                </p>
+              </div>
             </div>
-          </div>
-        }
-      </div>
+          }
+        </div>
+      }
     </div>
 
     <div class="panel products-panel">
       <div class="panel-header">
         <h3>Top Products</h3>
-        <button>View all</button>
+        <button>Sales</button>
       </div>
 
-      <div class="product-list">
-        @for (product of bestProducts; track product.name) {
-          <div class="product">
-            <div class="product-img">
-              <span class="material-symbols-rounded">inventory_2</span>
-            </div>
+      @if (bestProducts.length === 0) {
+        <div class="empty-dashboard-box">
+          No completed sales yet.
+        </div>
+      } @else {
+        <div class="product-list">
+          @for (product of bestProducts; track product.productName) {
+            <div class="product">
+              <div class="product-img">
+                <span class="material-symbols-rounded">inventory_2</span>
+              </div>
 
-            <div>
-              <strong>{{ product.name }}</strong>
-              <p>{{ product.sold }}</p>
+              <div>
+                <strong>{{ product.productName }}</strong>
+                <p>{{ product.soldQuantity }} sold • {{ product.sku }}</p>
+              </div>
             </div>
-          </div>
-        }
-      </div>
+          }
+        </div>
+      }
     </div>
 
     <div class="panel ai-panel">
@@ -148,11 +165,23 @@
         AI Insights
       </h3>
 
-      <p>
-        Increase stock for Wireless Earbuds Pro by 20%.
-      </p>
+      @if (getMainAiInsight()) {
+        <p>
+          <strong>{{ getMainAiInsight()?.title }}</strong>
+          <br />
+          {{ getMainAiInsight()?.message }}
+          <br />
+          <span class="ai-recommendation">
+            {{ getMainAiInsight()?.recommendation }}
+          </span>
+        </p>
+      } @else {
+        <p>
+          No AI insights available right now.
+        </p>
+      }
 
-      <button>
+      <button routerLink="/ai-insights">
         View Insight
         <span class="material-symbols-rounded">arrow_forward</span>
       </button>

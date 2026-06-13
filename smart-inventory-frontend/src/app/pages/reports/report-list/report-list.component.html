@@ -1,0 +1,25 @@
+
+<section class="page">
+  <div class="page-header">
+    <div>
+      <h1>Reports</h1>
+      <p>Export inventory reports as PDF or Excel.</p>
+    </div>
+  </div>
+
+  <div class="reports-grid">
+    <div class="report-card">
+      <span class="material-symbols-rounded">picture_as_pdf</span>
+      <h3>PDF Report</h3>
+      <p>Download a printable inventory report.</p>
+      <button (click)="exportPdf()">Export PDF</button>
+    </div>
+
+    <div class="report-card">
+      <span class="material-symbols-rounded">table</span>
+      <h3>Excel Report</h3>
+      <p>Download stock data in Excel format.</p>
+      <button (click)="exportExcel()">Export Excel</button>
+    </div>
+  </div>
+</section>

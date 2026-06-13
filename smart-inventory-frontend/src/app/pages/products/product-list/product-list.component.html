@@ -25,8 +25,37 @@
           type="text"
           placeholder="Search products..."
           [(ngModel)]="keyword"
-          (input)="searchProducts()"
+          (input)="applyFilters()"
         />
+      </div>
+
+      <div class="filters-row">
+        <select [(ngModel)]="selectedCategory" (change)="applyFilters()">
+          <option value="ALL">All Categories</option>
+
+          @for (category of categories; track category) {
+            <option [value]="category">{{ category }}</option>
+          }
+        </select>
+
+        <select [(ngModel)]="selectedSupplier" (change)="applyFilters()">
+          <option value="ALL">All Suppliers</option>
+
+          @for (supplier of suppliers; track supplier) {
+            <option [value]="supplier">{{ supplier }}</option>
+          }
+        </select>
+
+        <select [(ngModel)]="selectedPrice" (change)="applyFilters()">
+          <option value="ALL">All Prices</option>
+          <option value="LOW">Below $100</option>
+          <option value="MEDIUM">$100 - $1000</option>
+          <option value="HIGH">Above $1000</option>
+        </select>
+
+        <button class="reset-btn" type="button" (click)="resetFilters()">
+          Reset
+        </button>
       </div>
     </div>
 
@@ -66,18 +95,14 @@
 
                   <td>{{ product.sku || '-' }}</td>
 
-                  <td>
-                    {{ product.category?.categoryName || 'No Category' }}
-                  </td>
+                  <td>{{ product.category?.categoryName || 'No Category' }}</td>
 
-                  <td>
-                    {{ product.supplier?.supplierName || 'No Supplier' }}
-                  </td>
+                  <td>{{ product.supplier?.supplierName || 'No Supplier' }}</td>
 
                   <td>${{ product.price || 0 }}</td>
 
                   <td>
-                    <span class="stock-managed">Managed in Stock</span>
+                    <span class="stock-managed">Stock Page</span>
                   </td>
 
                   <td>

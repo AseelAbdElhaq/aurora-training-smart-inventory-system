@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -21,39 +21,62 @@ export class WarehouseFormComponent implements OnInit {
 
   warehouseId: number | null = null;
   isEditMode = false;
+  loading = false;
   errorMessage = '';
 
   constructor(
     private warehouseService: WarehouseService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
 
-    if (id) {
-      this.warehouseId = Number(id);
-      this.isEditMode = true;
-      this.loadWarehouse(this.warehouseId);
-    }
+      if (id) {
+        this.warehouseId = Number(id);
+        this.isEditMode = true;
+        this.loadWarehouse(this.warehouseId);
+      }
+    });
   }
 
   loadWarehouse(id: number): void {
-  this.warehouseService.getWarehouseById(id).subscribe({
-    next: (data) => {
-      this.warehouse = {
-        ...data
-      };
-    }
-  });
-}
+    this.loading = true;
+    this.cdr.detectChanges();
+
+    this.warehouseService.getWarehouseById(id).subscribe({
+      next: (data) => {
+        this.warehouse = {
+          id: data.id,
+          warehouseName: data.warehouseName || '',
+          location: data.location || '',
+          capacity: Number(data.capacity || 0),
+          currentCapacity: Number(data.currentCapacity || 0),
+          createdAt: data.createdAt
+        };
+
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('WAREHOUSE LOAD ERROR:', error);
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
   getUsedPercentage(): number {
     if (!this.warehouse.capacity || this.warehouse.capacity === 0) {
       return 0;
     }
 
-    return Math.round((this.warehouse.currentCapacity / this.warehouse.capacity) * 100);
+    return Math.round(
+      ((this.warehouse.currentCapacity || 0) / this.warehouse.capacity) * 100
+    );
   }
 
   saveWarehouse(): void {
@@ -81,12 +104,22 @@ export class WarehouseFormComponent implements OnInit {
 
     if (this.isEditMode && this.warehouseId) {
       this.warehouseService.updateWarehouse(this.warehouseId, this.warehouse).subscribe({
-        next: () => this.router.navigate(['/warehouses'])
+        next: () => this.router.navigate(['/warehouses']),
+        error: (error) => {
+          console.error('WAREHOUSE UPDATE ERROR:', error);
+          this.errorMessage = 'Failed to update warehouse';
+        }
       });
-    } else {
-      this.warehouseService.addWarehouse(this.warehouse).subscribe({
-        next: () => this.router.navigate(['/warehouses'])
-      });
+
+      return;
     }
+
+    this.warehouseService.addWarehouse(this.warehouse).subscribe({
+      next: () => this.router.navigate(['/warehouses']),
+      error: (error) => {
+        console.error('WAREHOUSE ADD ERROR:', error);
+        this.errorMessage = 'Failed to save warehouse';
+      }
+    });
   }
 }

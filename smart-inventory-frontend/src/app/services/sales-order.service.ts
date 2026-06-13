@@ -2,36 +2,40 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-export interface Warehouse {
-  id: number;
-  warehouseName: string;
-  location?: string;
-  capacity?: number;
-  currentCapacity?: number;
-}
-
-export interface Product {
-  id: number;
-  productName: string;
-  sku: string;
-  price: number;
+export interface SalesOrder {
+  id?: number;
+  customerName?: string;
+  warehouse?: {
+    id?: number;
+    warehouseName?: string;
+    location?: string;
+    capacity?: number;
+    currentCapacity?: number;
+  };
+  status?: string;
+  totalAmount?: number;
+  createdAt?: string;
+  items?: SalesOrderItem[];
 }
 
 export interface SalesOrderItem {
   id?: number;
-  product: Product | null;
-  quantity: number;
-  unitPrice: number;
+  product?: {
+    id?: number;
+    productName?: string;
+    sku?: string;
+    price?: number;
+  };
+  quantity?: number;
+  unitPrice?: number;
 }
 
-export interface SalesOrder {
-  id?: number;
-  customerName: string;
-  warehouse: Warehouse | null;
-  status?: 'PENDING' | 'COMPLETED' | 'CANCELLED' | string;
-  totalAmount?: number;
-  createdAt?: string;
-  items: SalesOrderItem[];
+export interface WarehouseProduct {
+  id: number;
+  productName: string;
+  sku: string;
+  price: number;
+  availableQuantity: number;
 }
 
 @Injectable({
@@ -48,6 +52,10 @@ export class SalesOrderService {
 
   getOrderById(id: number): Observable<SalesOrder> {
     return this.http.get<SalesOrder>(`${this.apiUrl}/${id}`);
+  }
+
+  getProductsByWarehouse(warehouseId: number): Observable<WarehouseProduct[]> {
+    return this.http.get<WarehouseProduct[]>(`${this.apiUrl}/warehouse/${warehouseId}/products`);
   }
 
   createOrder(order: SalesOrder): Observable<SalesOrder> {

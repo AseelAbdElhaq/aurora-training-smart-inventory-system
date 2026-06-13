@@ -1,5 +1,7 @@
 .products-page {
   padding-top: 8px;
+      padding-bottom: 65px;
+
 }
 
 .page-header {
@@ -196,9 +198,60 @@ td strong {
   font-size: 15px;
   font-weight: 700;
 }
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
 
+.filters-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.filters-row select {
+  height: 44px;
+  border: 1px solid #e5e1d8;
+  border-radius: 14px;
+  background: #ffffff;
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #111827;
+  outline: none;
+}
+
+.reset-btn {
+  height: 44px;
+  border: none;
+  border-radius: 14px;
+  background: #111827;
+  color: white;
+  padding: 0 16px;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.stock-managed {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #fff8e8;
+  color: #8a6b1f;
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 900;
+}
 @keyframes spin {
   to {
     transform: rotate(360deg);
   }
+  
 }

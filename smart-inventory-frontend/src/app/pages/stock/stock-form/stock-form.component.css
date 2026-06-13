@@ -90,3 +90,11 @@
 
   cursor: pointer;
 }
+.error-box {
+  margin-top: 14px;
+  background: #fee2e2;
+  color: #b91c1c;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-weight: 800;
+}

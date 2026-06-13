@@ -14,6 +14,11 @@
       <p>
         Manage warehouse stock quantities
       </p>
+      @if (errorMessage) {
+  <div class="error-box">
+    {{ errorMessage }}
+  </div>
+}
     </div>
 
     <div class="form-grid">

@@ -250,7 +250,27 @@ export const routes: Routes = [
           import('./pages/users/user-form/user-form.component')
             .then(m => m.UserFormComponent),
         canActivate: [roleGuard(['ADMIN'])]
-      }
+      },{
+  path: 'alerts',
+  loadComponent: () =>
+    import('./pages/alerts/alert-list/alert-list.component')
+      .then(m => m.AlertListComponent),
+  canActivate: [roleGuard(['ADMIN', 'INVENTORY_MANAGER', 'PURCHASING_MANAGER', 'WAREHOUSE_EMPLOYEE'])]
+},
+{
+  path: 'reports',
+  loadComponent: () =>
+    import('./pages/reports/report-list/report-list.component')
+      .then(m => m.ReportListComponent),
+  canActivate: [roleGuard(['ADMIN', 'INVENTORY_MANAGER', 'PURCHASING_MANAGER'])]
+},
+{
+  path: 'ai-insights',
+  loadComponent: () =>
+    import('./pages/ai-insights/ai-insight-list/ai-insight-list.component')
+      .then(m => m.AiInsightListComponent),
+  canActivate: [roleGuard(['ADMIN', 'INVENTORY_MANAGER', 'PURCHASING_MANAGER'])]
+},
     ]
   },
 

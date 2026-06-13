@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 
@@ -27,7 +27,8 @@ export class PurchaseOrderListComponent implements OnInit {
 
   constructor(
     private purchaseOrderService: PurchaseOrderService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -37,16 +38,20 @@ export class PurchaseOrderListComponent implements OnInit {
   loadOrders(): void {
     this.loading = true;
     this.errorMessage = '';
+    this.cdr.detectChanges();
 
     this.purchaseOrderService.getOrders().subscribe({
       next: (orders) => {
-        this.orders = orders || [];
+        this.orders = [...(orders || [])];
         this.applyFilters();
         this.loading = false;
+        this.cdr.detectChanges();
       },
-      error: () => {
+      error: (error) => {
+        console.error('Purchase orders load error:', error);
         this.errorMessage = 'Failed to load purchase orders';
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -62,13 +67,14 @@ export class PurchaseOrderListComponent implements OnInit {
 
     if (keyword) {
       result = result.filter(order =>
-        String(order.id).includes(keyword) ||
-        order.supplier?.supplierName?.toLowerCase().includes(keyword) ||
-        order.warehouse?.warehouseName?.toLowerCase().includes(keyword)
+        String(order.id || '').includes(keyword) ||
+        (order.supplier?.supplierName || '').toLowerCase().includes(keyword) ||
+        (order.warehouse?.warehouseName || '').toLowerCase().includes(keyword)
       );
     }
 
-    this.filteredOrders = result;
+    this.filteredOrders = [...result];
+    this.cdr.detectChanges();
   }
 
   onStatusChange(event: Event): void {
@@ -83,7 +89,6 @@ export class PurchaseOrderListComponent implements OnInit {
 
   editOrder(id?: number): void {
     if (!id) return;
-
     this.router.navigate(['/purchase-orders/edit', id]);
   }
 
@@ -99,7 +104,9 @@ export class PurchaseOrderListComponent implements OnInit {
         this.loadOrders();
       },
       error: (error) => {
+        console.error('Receive order error:', error);
         alert(error.error || 'Failed to receive purchase order');
+        this.cdr.detectChanges();
       }
     });
   }
@@ -116,7 +123,9 @@ export class PurchaseOrderListComponent implements OnInit {
         this.loadOrders();
       },
       error: (error) => {
+        console.error('Cancel order error:', error);
         alert(error.error || 'Failed to cancel purchase order');
+        this.cdr.detectChanges();
       }
     });
   }

@@ -2,12 +2,12 @@ package com.smartinventory.controller;
 
 import com.smartinventory.model.*;
 import com.smartinventory.repository.*;
-
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/purchase-orders")
@@ -38,160 +38,74 @@ public class PurchaseOrderController {
     }
 
     @GetMapping
-    public List<PurchaseOrder> getAllOrders() {
-        return purchaseOrderRepository.findAll();
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getAllOrders() {
+        return purchaseOrderRepository.findAll()
+                .stream()
+                .map(this::toDto)
+                .toList();
     }
 
     @GetMapping("/{id}")
+    @Transactional(readOnly = true)
     public ResponseEntity<?> getOrderById(@PathVariable Integer id) {
-        return purchaseOrderRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
+        PurchaseOrder order = purchaseOrderRepository.findById(id).orElse(null);
 
-    @GetMapping("/search")
-    public List<PurchaseOrder> searchByStatus(@RequestParam String status) {
-        return purchaseOrderRepository.findByStatusContainingIgnoreCase(status);
+        if (order == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(toDto(order));
     }
 
     @PostMapping
-    public ResponseEntity<?> createOrder(@RequestBody PurchaseOrder order) {
+    @Transactional
+    public ResponseEntity<?> createOrder(@RequestBody PurchaseOrder request) {
+        ResponseEntity<?> validation = validateRequest(request);
+        if (validation != null) return validation;
 
-        if (order.getSupplier() == null || order.getSupplier().getId() == null) {
-            return ResponseEntity.badRequest().body("Supplier is required");
-        }
+        Supplier supplier = supplierRepository.findById(request.getSupplier().getId()).orElse(null);
+        Warehouse warehouse = warehouseRepository.findById(request.getWarehouse().getId()).orElse(null);
 
-        if (order.getWarehouse() == null || order.getWarehouse().getId() == null) {
-            return ResponseEntity.badRequest().body("Warehouse is required");
-        }
+        if (supplier == null) return ResponseEntity.badRequest().body("Supplier not found");
+        if (warehouse == null) return ResponseEntity.badRequest().body("Warehouse not found");
 
-        if (order.getItems() == null || order.getItems().isEmpty()) {
-            return ResponseEntity.badRequest().body("Order items are required");
-        }
-
-        Supplier supplier = supplierRepository
-                .findById(order.getSupplier().getId())
-                .orElse(null);
-
-        Warehouse warehouse = warehouseRepository
-                .findById(order.getWarehouse().getId())
-                .orElse(null);
-
-        if (supplier == null) {
-            return ResponseEntity.badRequest().body("Supplier not found");
-        }
-
-        if (warehouse == null) {
-            return ResponseEntity.badRequest().body("Warehouse not found");
-        }
-
+        PurchaseOrder order = new PurchaseOrder();
         order.setSupplier(supplier);
         order.setWarehouse(warehouse);
         order.setStatus("PENDING");
 
         BigDecimal total = BigDecimal.ZERO;
 
-        for (PurchaseOrderItem item : order.getItems()) {
-
-            if (item.getProduct() == null || item.getProduct().getId() == null) {
-                return ResponseEntity.badRequest().body("Product is required");
-            }
-
-            Product product = productRepository
-                    .findById(item.getProduct().getId())
-                    .orElse(null);
+        for (PurchaseOrderItem requestItem : request.getItems()) {
+            Product product = productRepository.findById(requestItem.getProduct().getId()).orElse(null);
 
             if (product == null) {
                 return ResponseEntity.badRequest().body("Product not found");
             }
 
-            if (item.getQuantity() == null || item.getQuantity() <= 0) {
-                return ResponseEntity.badRequest().body("Quantity must be greater than zero");
-            }
-
-            if (item.getUnitPrice() == null || item.getUnitPrice().compareTo(BigDecimal.ZERO) < 0) {
-                return ResponseEntity.badRequest().body("Unit price is invalid");
-            }
-
+            PurchaseOrderItem item = new PurchaseOrderItem();
             item.setProduct(product);
+            item.setQuantity(requestItem.getQuantity());
+            item.setUnitPrice(requestItem.getUnitPrice());
             item.setPurchaseOrder(order);
 
-            BigDecimal itemTotal = item.getUnitPrice()
-                    .multiply(BigDecimal.valueOf(item.getQuantity()));
+            total = total.add(
+                    requestItem.getUnitPrice().multiply(BigDecimal.valueOf(requestItem.getQuantity()))
+            );
 
-            total = total.add(itemTotal);
+            order.getItems().add(item);
         }
 
         order.setTotalAmount(total);
 
-        return ResponseEntity.ok(purchaseOrderRepository.save(order));
+        PurchaseOrder saved = purchaseOrderRepository.save(order);
+        return ResponseEntity.ok(toDto(saved));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateOrder(
-            @PathVariable Integer id,
-            @RequestBody PurchaseOrder updatedOrder
-    ) {
-        return purchaseOrderRepository.findById(id)
-                .map(order -> {
-
-                    if (!"PENDING".equalsIgnoreCase(order.getStatus())) {
-                        return ResponseEntity.badRequest()
-                                .body("Only pending orders can be edited");
-                    }
-
-                    Supplier supplier = supplierRepository
-                            .findById(updatedOrder.getSupplier().getId())
-                            .orElse(null);
-
-                    Warehouse warehouse = warehouseRepository
-                            .findById(updatedOrder.getWarehouse().getId())
-                            .orElse(null);
-
-                    if (supplier == null || warehouse == null) {
-                        return ResponseEntity.badRequest()
-                                .body("Supplier or warehouse not found");
-                    }
-
-                    order.setSupplier(supplier);
-                    order.setWarehouse(warehouse);
-
-                    BigDecimal total = BigDecimal.ZERO;
-
-                    order.getItems().clear();
-
-                    for (PurchaseOrderItem item : updatedOrder.getItems()) {
-
-                        Product product = productRepository
-                                .findById(item.getProduct().getId())
-                                .orElse(null);
-
-                        if (product == null) {
-                            return ResponseEntity.badRequest()
-                                    .body("Product not found");
-                        }
-
-                        item.setProduct(product);
-                        item.setPurchaseOrder(order);
-
-                        BigDecimal itemTotal = item.getUnitPrice()
-                                .multiply(BigDecimal.valueOf(item.getQuantity()));
-
-                        total = total.add(itemTotal);
-
-                        order.addItem(item);
-                    }
-
-                    order.setTotalAmount(total);
-
-                    return ResponseEntity.ok(purchaseOrderRepository.save(order));
-                })
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @PutMapping("/{id}/receive")
-    public ResponseEntity<?> receiveOrder(@PathVariable Integer id) {
-
+    @Transactional
+    public ResponseEntity<?> updateOrder(@PathVariable Integer id, @RequestBody PurchaseOrder request) {
         PurchaseOrder order = purchaseOrderRepository.findById(id).orElse(null);
 
         if (order == null) {
@@ -199,16 +113,67 @@ public class PurchaseOrderController {
         }
 
         if (!"PENDING".equalsIgnoreCase(order.getStatus())) {
-            return ResponseEntity.badRequest()
-                    .body("Only pending orders can be received");
+            return ResponseEntity.badRequest().body("Only pending orders can be edited");
+        }
+
+        ResponseEntity<?> validation = validateRequest(request);
+        if (validation != null) return validation;
+
+        Supplier supplier = supplierRepository.findById(request.getSupplier().getId()).orElse(null);
+        Warehouse warehouse = warehouseRepository.findById(request.getWarehouse().getId()).orElse(null);
+
+        if (supplier == null) return ResponseEntity.badRequest().body("Supplier not found");
+        if (warehouse == null) return ResponseEntity.badRequest().body("Warehouse not found");
+
+        order.setSupplier(supplier);
+        order.setWarehouse(warehouse);
+        order.getItems().clear();
+
+        BigDecimal total = BigDecimal.ZERO;
+
+        for (PurchaseOrderItem requestItem : request.getItems()) {
+            Product product = productRepository.findById(requestItem.getProduct().getId()).orElse(null);
+
+            if (product == null) {
+                return ResponseEntity.badRequest().body("Product not found");
+            }
+
+            PurchaseOrderItem item = new PurchaseOrderItem();
+            item.setProduct(product);
+            item.setQuantity(requestItem.getQuantity());
+            item.setUnitPrice(requestItem.getUnitPrice());
+            item.setPurchaseOrder(order);
+
+            total = total.add(
+                    requestItem.getUnitPrice().multiply(BigDecimal.valueOf(requestItem.getQuantity()))
+            );
+
+            order.getItems().add(item);
+        }
+
+        order.setTotalAmount(total);
+
+        PurchaseOrder saved = purchaseOrderRepository.save(order);
+        return ResponseEntity.ok(toDto(saved));
+    }
+
+    @PutMapping("/{id}/receive")
+    @Transactional
+    public ResponseEntity<?> receiveOrder(@PathVariable Integer id) {
+        PurchaseOrder order = purchaseOrderRepository.findById(id).orElse(null);
+
+        if (order == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (!"PENDING".equalsIgnoreCase(order.getStatus())) {
+            return ResponseEntity.badRequest().body("Only pending orders can be received");
         }
 
         Warehouse warehouse = order.getWarehouse();
-
         int addedQuantity = 0;
 
         for (PurchaseOrderItem item : order.getItems()) {
-
             Product product = item.getProduct();
             int quantity = item.getQuantity();
 
@@ -219,8 +184,13 @@ public class PurchaseOrderController {
                         newStock.setProduct(product);
                         newStock.setWarehouse(warehouse);
                         newStock.setQuantity(0);
+                        newStock.setIsDeleted(false);
                         return newStock;
                     });
+
+            if (stock.getQuantity() == null) {
+                stock.setQuantity(0);
+            }
 
             stock.setQuantity(stock.getQuantity() + quantity);
             stockRepository.save(stock);
@@ -241,32 +211,113 @@ public class PurchaseOrderController {
             warehouse.setCurrentCapacity(0);
         }
 
-        warehouse.setCurrentCapacity(
-                warehouse.getCurrentCapacity() + addedQuantity
-        );
-
+        warehouse.setCurrentCapacity(warehouse.getCurrentCapacity() + addedQuantity);
         warehouseRepository.save(warehouse);
 
         order.setStatus("RECEIVED");
 
-        return ResponseEntity.ok(purchaseOrderRepository.save(order));
+        PurchaseOrder saved = purchaseOrderRepository.save(order);
+        return ResponseEntity.ok(toDto(saved));
     }
 
     @PutMapping("/{id}/cancel")
+    @Transactional
     public ResponseEntity<?> cancelOrder(@PathVariable Integer id) {
+        PurchaseOrder order = purchaseOrderRepository.findById(id).orElse(null);
 
-        return purchaseOrderRepository.findById(id)
-                .map(order -> {
+        if (order == null) {
+            return ResponseEntity.notFound().build();
+        }
 
-                    if (!"PENDING".equalsIgnoreCase(order.getStatus())) {
-                        return ResponseEntity.badRequest()
-                                .body("Only pending orders can be cancelled");
-                    }
+        if (!"PENDING".equalsIgnoreCase(order.getStatus())) {
+            return ResponseEntity.badRequest().body("Only pending orders can be cancelled");
+        }
 
-                    order.setStatus("CANCELLED");
+        order.setStatus("CANCELLED");
 
-                    return ResponseEntity.ok(purchaseOrderRepository.save(order));
-                })
-                .orElse(ResponseEntity.notFound().build());
+        PurchaseOrder saved = purchaseOrderRepository.save(order);
+        return ResponseEntity.ok(toDto(saved));
+    }
+
+    private ResponseEntity<?> validateRequest(PurchaseOrder order) {
+        if (order.getSupplier() == null || order.getSupplier().getId() == null) {
+            return ResponseEntity.badRequest().body("Supplier is required");
+        }
+
+        if (order.getWarehouse() == null || order.getWarehouse().getId() == null) {
+            return ResponseEntity.badRequest().body("Warehouse is required");
+        }
+
+        if (order.getItems() == null || order.getItems().isEmpty()) {
+            return ResponseEntity.badRequest().body("Order items are required");
+        }
+
+        for (PurchaseOrderItem item : order.getItems()) {
+            if (item.getProduct() == null || item.getProduct().getId() == null) {
+                return ResponseEntity.badRequest().body("Product is required");
+            }
+
+            if (item.getQuantity() == null || item.getQuantity() <= 0) {
+                return ResponseEntity.badRequest().body("Quantity must be greater than zero");
+            }
+
+            if (item.getUnitPrice() == null || item.getUnitPrice().compareTo(BigDecimal.ZERO) < 0) {
+                return ResponseEntity.badRequest().body("Unit price is invalid");
+            }
+        }
+
+        return null;
+    }
+
+    private Map<String, Object> toDto(PurchaseOrder order) {
+        Map<String, Object> dto = new LinkedHashMap<>();
+
+        dto.put("id", order.getId());
+        dto.put("status", order.getStatus());
+        dto.put("totalAmount", order.getTotalAmount());
+        dto.put("createdAt", order.getCreatedAt());
+
+        Map<String, Object> supplier = new LinkedHashMap<>();
+        if (order.getSupplier() != null) {
+            supplier.put("id", order.getSupplier().getId());
+            supplier.put("supplierName", order.getSupplier().getSupplierName());
+        }
+        dto.put("supplier", supplier);
+
+        Map<String, Object> warehouse = new LinkedHashMap<>();
+        if (order.getWarehouse() != null) {
+            warehouse.put("id", order.getWarehouse().getId());
+            warehouse.put("warehouseName", order.getWarehouse().getWarehouseName());
+            warehouse.put("location", order.getWarehouse().getLocation());
+            warehouse.put("capacity", order.getWarehouse().getCapacity());
+            warehouse.put("currentCapacity", order.getWarehouse().getCurrentCapacity());
+        }
+        dto.put("warehouse", warehouse);
+
+        List<Map<String, Object>> items = new ArrayList<>();
+
+        for (PurchaseOrderItem item : order.getItems()) {
+            Map<String, Object> itemDto = new LinkedHashMap<>();
+
+            itemDto.put("id", item.getId());
+            itemDto.put("quantity", item.getQuantity());
+            itemDto.put("unitPrice", item.getUnitPrice());
+
+            Map<String, Object> product = new LinkedHashMap<>();
+
+            if (item.getProduct() != null) {
+                product.put("id", item.getProduct().getId());
+                product.put("productName", item.getProduct().getProductName());
+                product.put("sku", item.getProduct().getSku());
+                product.put("price", item.getProduct().getPrice());
+            }
+
+            itemDto.put("product", product);
+            items.add(itemDto);
+        }
+
+        dto.put("items", items);
+
+        return dto;
     }
 }

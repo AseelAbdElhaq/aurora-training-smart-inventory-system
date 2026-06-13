@@ -1,7 +1,9 @@
 import {
   Component,
   Inject,
-  PLATFORM_ID
+  PLATFORM_ID,
+  OnInit,
+  ChangeDetectorRef
 } from '@angular/core';
 
 import {
@@ -9,18 +11,34 @@ import {
   isPlatformBrowser
 } from '@angular/common';
 
+import { RouterLink } from '@angular/router';
+
 import { StatCardComponent } from '../../shared/stat-card/stat-card';
+
+import {
+  DashboardService,
+  DashboardSummary,
+  RecentActivity,
+  TopProduct
+} from '../../services/dashboard.service';
+
+import {
+  AiInsight,
+  AiInsightService
+} from '../../services/ai-insight.service';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, StatCardComponent],
+  imports: [CommonModule, RouterLink, StatCardComponent],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit {
 
   username = 'Admin';
+
+  loading = false;
 
   currentDate = new Date().toLocaleDateString('en-US', {
     month: 'long',
@@ -28,82 +46,185 @@ export class DashboardComponent {
     year: 'numeric'
   });
 
-  constructor(
-    @Inject(PLATFORM_ID) private platformId: Object
-  ) {
-
-    if (isPlatformBrowser(this.platformId)) {
-      this.username =
-        localStorage.getItem('username') || 'Admin';
-    }
-  }
-
   cards = [
     {
       title: 'Products',
-      value: '1,248',
+      value: '0',
       icon: 'inventory_2',
-      change: '+12.5%',
+      change: 'Real data',
       status: 'up'
     },
     {
       title: 'Warehouses',
-      value: '12',
+      value: '0',
       icon: 'warehouse',
-      change: '+8.3%',
+      change: 'Real data',
       status: 'up'
     },
     {
       title: 'Stock Units',
-      value: '45.5K',
+      value: '0',
       icon: 'layers',
-      change: '+15.2%',
+      change: 'Real data',
       status: 'up'
     },
     {
       title: 'Low Stock Alerts',
-      value: '14',
+      value: '0',
       icon: 'warning',
-      change: '-3.1%',
+      change: 'Real data',
       status: 'down'
     }
   ];
 
-  activities = [
-    {
-      title: 'New product added: Wireless Mouse',
-      time: '2 minutes ago',
-      icon: 'inventory_2'
-    },
-    {
-      title: 'Stock updated in Main Warehouse',
-      time: '15 minutes ago',
-      icon: 'warehouse'
-    },
-    {
-      title: 'Purchase order received',
-      time: '1 hour ago',
-      icon: 'description'
-    },
-    {
-      title: 'Low stock alert for Laptop Stand',
-      time: '2 hours ago',
-      icon: 'warning'
-    }
-  ];
+  activities: RecentActivity[] = [];
+  bestProducts: TopProduct[] = [];
+  aiInsights: AiInsight[] = [];
 
-  bestProducts = [
-    {
-      name: 'Wireless Earbuds Pro',
-      sold: '1,245 sold'
-    },
-    {
-      name: 'Bluetooth Speaker Mini',
-      sold: '1,102 sold'
-    },
-    {
-      name: 'Smart Watch Series 9',
-      sold: '890 sold'
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private dashboardService: DashboardService,
+    private aiInsightService: AiInsightService,
+    private cdr: ChangeDetectorRef
+  ) {
+    if (isPlatformBrowser(this.platformId)) {
+      this.username = localStorage.getItem('username') || 'Admin';
     }
-  ];
+  }
+
+  ngOnInit(): void {
+    this.loadDashboardData();
+  }
+
+  loadDashboardData(): void {
+    this.loading = true;
+    this.cdr.detectChanges();
+
+    this.loadSummary();
+    this.loadRecentActivities();
+    this.loadTopProducts();
+    this.loadAiInsights();
+
+    this.loading = false;
+    this.cdr.detectChanges();
+  }
+
+  loadSummary(): void {
+    this.dashboardService.getSummary().subscribe({
+      next: (summary: DashboardSummary) => {
+        this.cards = [
+          {
+            title: 'Products',
+            value: String(summary.totalProducts || 0),
+            icon: 'inventory_2',
+            change: 'From database',
+            status: 'up'
+          },
+          {
+            title: 'Warehouses',
+            value: String(summary.totalWarehouses || 0),
+            icon: 'warehouse',
+            change: 'Active warehouses',
+            status: 'up'
+          },
+          {
+            title: 'Stock Units',
+            value: this.formatNumber(summary.totalStock || 0),
+            icon: 'layers',
+            change: 'Current stock',
+            status: 'up'
+          },
+          {
+            title: 'Low Stock Alerts',
+            value: String(summary.lowStockAlerts || 0),
+            icon: 'warning',
+            change: 'Qty ≤ 5',
+            status: summary.lowStockAlerts > 0 ? 'down' : 'up'
+          }
+        ];
+
+        this.cdr.detectChanges();
+      },
+      error: error => {
+        console.error('Dashboard summary error:', error);
+      }
+    });
+  }
+
+  loadRecentActivities(): void {
+    this.dashboardService.getRecentActivities().subscribe({
+      next: data => {
+        this.activities = [...(data || [])];
+        this.cdr.detectChanges();
+      },
+      error: error => {
+        console.error('Recent activities error:', error);
+        this.activities = [];
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  loadTopProducts(): void {
+    this.dashboardService.getTopProducts().subscribe({
+      next: data => {
+        this.bestProducts = [...(data || [])];
+        this.cdr.detectChanges();
+      },
+      error: error => {
+        console.error('Top products error:', error);
+        this.bestProducts = [];
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  loadAiInsights(): void {
+    this.aiInsightService.getInsights().subscribe({
+      next: data => {
+        this.aiInsights = [...(data || [])];
+        this.cdr.detectChanges();
+      },
+      error: error => {
+        console.error('AI insights error:', error);
+        this.aiInsights = [];
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  getMainAiInsight(): AiInsight | null {
+    return this.aiInsights.length > 0 ? this.aiInsights[0] : null;
+  }
+
+  getActivityIcon(type?: string): string {
+    const value = (type || '').toUpperCase();
+
+    if (value.includes('ADD')) return 'add_box';
+    if (value.includes('REMOVE')) return 'remove_circle';
+    if (value.includes('TRANSFER')) return 'swap_horiz';
+    if (value.includes('RECEIVE')) return 'inventory';
+    if (value.includes('UPDATE')) return 'edit_square';
+
+    return 'history';
+  }
+
+  formatNumber(value: number): string {
+    if (value >= 1000) {
+      return (value / 1000).toFixed(1) + 'K';
+    }
+
+    return String(value);
+  }
+
+  formatDate(date?: string): string {
+    if (!date) return 'No date';
+
+    return new Date(date).toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
 }

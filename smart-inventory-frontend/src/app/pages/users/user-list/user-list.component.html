@@ -3,61 +3,91 @@
   <div class="page-header">
     <div>
       <h2>Users Management</h2>
-      <p>Admin can add, edit, and soft delete users</p>
+      <p>Manage system users, roles and permissions</p>
     </div>
 
     <a routerLink="/users/add" class="add-btn">
+      <span class="material-symbols-rounded">person_add</span>
       Add User
     </a>
   </div>
 
   @if (loading) {
-    <div class="empty-state">Loading users...</div>
+  <div class="empty-state">
+    Loading users...
+  </div>
   } @else {
-    @if (users.length === 0) {
-      <div class="empty-state">No users found</div>
-    } @else {
-      <div class="users-grid">
-        @for (user of users; track user.id) {
-          <div class="user-card">
 
-            <div class="user-top">
-              <div class="avatar">
-                {{ user.fullName.charAt(0) }}
-              </div>
+  @if (users.length === 0) {
+  <div class="empty-state">
+    No users found
+  </div>
+  } @else {
 
-              <div>
-                <h3>{{ user.fullName }}</h3>
-                <p>{{ user.username }}</p>
-              </div>
-            </div>
+  <div class="users-grid">
+    @for (user of users; track user.id) {
 
-            <div class="user-info">
-              <p><strong>Email:</strong> {{ user.email }}</p>
-              <p><strong>Phone:</strong> {{ user.phone }}</p>
-              <p><strong>Role:</strong> {{ roleName(user.roleId) }}</p>
-            </div>
-
-            <div class="user-actions">
-              <button
-                class="edit-btn"
-                [routerLink]="['/users/edit', user.id]"
-              >
-                Edit
-              </button>
-
-              <button
-                class="delete-btn"
-                (click)="deleteUser(user.id)"
-              >
-                Remove
-              </button>
-            </div>
-
-          </div>
-        }
+    <div class="user-card" [class.admin-card]="user.roleId === 1">
+      @if (user.roleId === 1) {
+      <div class="admin-ribbon">
+        <span class="material-symbols-rounded">admin_panel_settings</span>
+        Main System Admin
       </div>
+      }
+
+      <div class="user-header">
+        <div class="avatar" [class.admin-avatar]="user.roleId === 1" [class.inventory-avatar]="user.roleId === 2"
+          [class.purchase-avatar]="user.roleId === 3" [class.employee-avatar]="user.roleId === 4">
+          {{ getInitial(user.fullName) }}
+        </div>
+
+        <div class="user-details">
+          <h3>{{ getDisplayName(user) }}</h3>
+          <span>{{ user.username || 'No username' }}</span>
+        </div>
+
+        <div class="role-badge" [class.admin]="user.roleId === 1" [class.inventory]="user.roleId === 2"
+          [class.purchase]="user.roleId === 3" [class.employee]="user.roleId === 4">
+          {{ roleName(user.roleId) }}
+        </div>
+      </div>
+
+      <div class="info-grid">
+
+        <div class="info-box">
+          <small>Email</small>
+          <strong>{{ getDisplayEmail(user) }}</strong>
+        </div>
+
+        <div class="info-box">
+          <small>Phone</small>
+          <strong>{{ user.phone || 'No phone' }}</strong>
+        </div>
+
+        <div class="info-box">
+          <small>Role</small>
+          <strong>{{ roleName(user.roleId) }}</strong>
+        </div>
+
+      </div>
+
+      <div class="action-row">
+        <button class="edit-btn" [routerLink]="['/users/edit', user.id]" title="Edit user">
+          <span class="material-symbols-rounded">edit</span>
+        </button>
+
+        <button class="delete-btn" (click)="deleteUser(user.id)" title="Remove user">
+          <span class="material-symbols-rounded">delete</span>
+        </button>
+      </div>
+
+    </div>
+
     }
+  </div>
+
+  }
+
   }
 
 </div>

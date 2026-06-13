@@ -1,6 +1,8 @@
 .dashboard {
   position: relative;
   padding-top: 8px;
+      padding-bottom: 65px;
+
 }
 
 .dashboard::before {
@@ -463,7 +465,22 @@
 
   letter-spacing: 1px;
 }
+.empty-dashboard-box {
+  margin-top: 18px;
+  padding: 18px;
+  border-radius: 16px;
+  background: #f8f2e3;
+  color: #6b7280;
+  font-weight: 800;
+  text-align: center;
+}
 
+.ai-recommendation {
+  display: block;
+  margin-top: 12px;
+  color: #111827;
+  font-weight: 800;
+}
 .date-content strong {
   margin-top: 2px;
 

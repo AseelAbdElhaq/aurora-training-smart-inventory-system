@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 
@@ -18,7 +18,9 @@ export class SalesOrderListComponent implements OnInit {
 
   orders: SalesOrder[] = [];
   filteredOrders: SalesOrder[] = [];
-userRole = localStorage.getItem('role') || 'ADMIN';
+
+  userRole = localStorage.getItem('role') || 'ADMIN';
+
   loading = false;
   errorMessage = '';
 
@@ -27,7 +29,8 @@ userRole = localStorage.getItem('role') || 'ADMIN';
 
   constructor(
     private salesOrderService: SalesOrderService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -37,16 +40,20 @@ userRole = localStorage.getItem('role') || 'ADMIN';
   loadOrders(): void {
     this.loading = true;
     this.errorMessage = '';
+    this.cdr.detectChanges();
 
     this.salesOrderService.getOrders().subscribe({
-      next: (orders) => {
-        this.orders = orders || [];
+      next: orders => {
+        this.orders = [...(orders || [])];
         this.applyFilters();
         this.loading = false;
+        this.cdr.detectChanges();
       },
-      error: () => {
+      error: error => {
+        console.error('Sales order load error:', error);
         this.errorMessage = 'Failed to load sales orders';
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -62,13 +69,14 @@ userRole = localStorage.getItem('role') || 'ADMIN';
 
     if (keyword) {
       result = result.filter(order =>
-        String(order.id).includes(keyword) ||
-        order.customerName?.toLowerCase().includes(keyword) ||
-        order.warehouse?.warehouseName?.toLowerCase().includes(keyword)
+        String(order.id || '').includes(keyword) ||
+        (order.customerName || '').toLowerCase().includes(keyword) ||
+        (order.warehouse?.warehouseName || '').toLowerCase().includes(keyword)
       );
     }
 
-    this.filteredOrders = result;
+    this.filteredOrders = [...result];
+    this.cdr.detectChanges();
   }
 
   onStatusChange(event: Event): void {
@@ -99,11 +107,11 @@ userRole = localStorage.getItem('role') || 'ADMIN';
     }
 
     this.salesOrderService.completeOrder(id).subscribe({
-      next: () => {
-        this.loadOrders();
-      },
-      error: (error) => {
+      next: () => this.loadOrders(),
+      error: error => {
+        console.error('Complete order error:', error);
         alert(error.error || 'Failed to complete sales order');
+        this.cdr.detectChanges();
       }
     });
   }
@@ -116,11 +124,11 @@ userRole = localStorage.getItem('role') || 'ADMIN';
     }
 
     this.salesOrderService.cancelOrder(id).subscribe({
-      next: () => {
-        this.loadOrders();
-      },
-      error: (error) => {
+      next: () => this.loadOrders(),
+      error: error => {
+        console.error('Cancel order error:', error);
         alert(error.error || 'Failed to cancel sales order');
+        this.cdr.detectChanges();
       }
     });
   }

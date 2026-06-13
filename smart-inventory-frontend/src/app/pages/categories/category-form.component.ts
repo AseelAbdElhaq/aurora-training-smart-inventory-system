@@ -1,5 +1,11 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  Inject,
+  OnInit,
+  PLATFORM_ID
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
@@ -33,6 +39,7 @@ export class CategoryFormComponent implements OnInit {
     private categoryService: CategoryService,
     private route: ActivatedRoute,
     private router: Router,
+    private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     if (isPlatformBrowser(this.platformId)) {
@@ -41,25 +48,36 @@ export class CategoryFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
 
-    if (id) {
-      this.categoryId = Number(id);
-      this.loadCategory(this.categoryId);
-    }
+      if (id) {
+        this.categoryId = Number(id);
+        this.loadCategory(this.categoryId);
+      }
+    });
   }
 
   loadCategory(id: number): void {
     this.loading = true;
+    this.cdr.detectChanges();
 
     this.categoryService.getCategoryById(id).subscribe({
       next: (data) => {
-        this.category = { ...data };
+        this.category = {
+          id: data.id,
+          categoryName: data.categoryName || '',
+          description: data.description || '',
+          isDeleted: data.isDeleted
+        };
+
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (error) => {
         console.error('Error loading category:', error);
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -76,24 +94,16 @@ export class CategoryFormComponent implements OnInit {
 
     if (this.categoryId) {
       this.categoryService.updateCategory(this.categoryId, this.category).subscribe({
-        next: () => {
-          this.router.navigate(['/categories']);
-        },
-        error: (error) => {
-          console.error('Update category error:', error);
-        }
+        next: () => this.router.navigate(['/categories']),
+        error: (error) => console.error('Update category error:', error)
       });
 
       return;
     }
 
     this.categoryService.addCategory(this.category).subscribe({
-      next: () => {
-        this.router.navigate(['/categories']);
-      },
-      error: (error) => {
-        console.error('Add category error:', error);
-      }
+      next: () => this.router.navigate(['/categories']),
+      error: (error) => console.error('Add category error:', error)
     });
   }
 }

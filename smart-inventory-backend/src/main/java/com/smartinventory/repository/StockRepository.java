@@ -13,10 +13,14 @@ public interface StockRepository extends JpaRepository<Stock, Integer> {
 
     List<Stock> findByIsDeletedFalse();
 
+    List<Stock> findByProductIdAndIsDeletedFalse(Integer productId);
+
     Optional<Stock> findByProductIdAndWarehouseIdAndIsDeletedFalse(
             Integer productId,
             Integer warehouseId
     );
-        Optional<Stock> findByProductAndWarehouse(Product product, Warehouse warehouse);
+
+    Optional<Stock> findByProductAndWarehouse(Product product, Warehouse warehouse);
+        List<Stock> findByWarehouse(Warehouse warehouse);
 
 }

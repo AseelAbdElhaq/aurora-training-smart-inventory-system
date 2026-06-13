@@ -1,0 +1,34 @@
+
+<section class="page">
+  <div class="page-header">
+    <div>
+      <h1>AI Insights</h1>
+      <p>Rule-based smart recommendations for inventory and warehouses.</p>
+    </div>
+
+    <button class="primary-btn" (click)="loadInsights()">
+      Refresh
+    </button>
+  </div>
+
+  @if (loading) {
+    <div class="empty">Loading AI insights...</div>
+  } @else {
+    <div class="insights-grid">
+      @for (insight of insights; track insight.title + insight.message) {
+        <div class="insight-card">
+          <span class="type">{{ insight.type }}</span>
+
+          <h3>{{ insight.title }}</h3>
+
+          <p>{{ insight.message }}</p>
+
+          <div class="recommendation">
+            <strong>Recommendation:</strong>
+            <span>{{ insight.recommendation }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</section>

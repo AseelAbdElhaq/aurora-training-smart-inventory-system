@@ -236,6 +236,34 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+.mini-loading {
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #f8f2e3;
+  color: #6b7280;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mini-loading .loading-icon {
+  font-size: 22px;
+}
+
+.stock-info {
+  color: #166534 !important;
+  font-weight: 900 !important;
+}
+
+.good-stock {
+  color: #166534 !important;
+}
+
+.low-stock {
+  color: #b45309 !important;
+}
 
 @media (max-width: 900px) {
   .form-grid,

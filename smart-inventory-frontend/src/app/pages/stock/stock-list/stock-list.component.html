@@ -47,6 +47,20 @@
               <div>
                 <h3>{{ stock.product?.productName }}</h3>
                 <p>{{ stock.warehouse?.warehouseName }}</p>
+                <div
+  class="status-badge"
+  [class.low]="stock.quantity <= 5"
+  [class.medium]="stock.quantity > 5 && stock.quantity <= 20"
+  [class.high]="stock.quantity > 20"
+>
+  @if (stock.quantity <= 5) {
+    Low Stock
+  } @else if (stock.quantity <= 20) {
+    Medium Stock
+  } @else {
+    Healthy Stock
+  }
+</div>
               </div>
 
               <div class="qty-badge">

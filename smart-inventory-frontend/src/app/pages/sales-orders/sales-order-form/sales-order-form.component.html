@@ -36,7 +36,7 @@
         <div class="form-group">
           <label>Warehouse</label>
 
-          <select formControlName="warehouseId">
+          <select formControlName="warehouseId" (change)="onWarehouseChange()">
             <option value="">Select warehouse</option>
 
             @for (warehouse of warehouses; track warehouse.id) {
@@ -64,6 +64,13 @@
         </button>
       </div>
 
+      @if (productsLoading) {
+        <div class="mini-loading">
+          <span class="material-symbols-rounded loading-icon">progress_activity</span>
+          Loading warehouse products...
+        </div>
+      }
+
       <div formArrayName="items" class="items-list">
         @for (item of items.controls; track $index) {
           <div [formGroupName]="$index" class="item-row">
@@ -73,17 +80,31 @@
               <select formControlName="productId" (change)="onProductChange($index)">
                 <option value="">Select product</option>
 
-                @for (product of products; track product.id) {
+                @for (product of warehouseProducts; track product.id) {
                   <option [value]="product.id">
-                    {{ product.productName }} - {{ product.sku }}
+                    {{ product.productName }} - {{ product.sku }} | Available: {{ product.availableQuantity }}
                   </option>
                 }
               </select>
+
+              @if (!form.get('warehouseId')?.value) {
+                <small>Please choose warehouse first</small>
+              }
+
+              @if (getAvailableQuantity($index) !== null) {
+                <small class="stock-info" [ngClass]="getProductStockClass($index)">
+                  Available stock: {{ getAvailableQuantity($index) }}
+                </small>
+              }
             </div>
 
             <div class="form-group qty-field">
               <label>Quantity</label>
               <input type="number" formControlName="quantity" min="1" />
+
+              @if (getAvailableQuantity($index) !== null && item.get('quantity')?.value > getAvailableQuantity($index)!) {
+                <small>Quantity is more than available stock</small>
+              }
             </div>
 
             <div class="form-group price-field">

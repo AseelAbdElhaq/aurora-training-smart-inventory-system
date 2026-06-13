@@ -27,8 +27,17 @@ type Role =
 export class ProductListComponent implements OnInit {
   userRole: Role = 'ADMIN';
 
+  allProducts: Product[] = [];
   products: Product[] = [];
+
   keyword = '';
+  selectedCategory = 'ALL';
+  selectedSupplier = 'ALL';
+  selectedPrice = 'ALL';
+
+  categories: string[] = [];
+  suppliers: string[] = [];
+
   loading = false;
 
   constructor(
@@ -51,12 +60,16 @@ export class ProductListComponent implements OnInit {
 
     this.productService.getProducts().subscribe({
       next: (data) => {
-        this.products = Array.isArray(data) ? [...data] : [];
+        this.allProducts = Array.isArray(data) ? [...data] : [];
+        this.buildFilters();
+        this.applyFilters();
+
         this.loading = false;
         this.cdr.detectChanges();
       },
       error: (error) => {
         console.error('PRODUCT LOAD ERROR:', error);
+        this.allProducts = [];
         this.products = [];
         this.loading = false;
         this.cdr.detectChanges();
@@ -64,30 +77,71 @@ export class ProductListComponent implements OnInit {
     });
   }
 
-  searchProducts(): void {
-    const value = this.keyword.trim();
+  buildFilters(): void {
+    this.categories = [
+      ...new Set(
+        this.allProducts
+          .map(product => product.category?.categoryName)
+          .filter((name): name is string => !!name)
+      )
+    ];
 
-    if (!value) {
-      this.loadProducts();
-      return;
-    }
+    this.suppliers = [
+      ...new Set(
+        this.allProducts
+          .map(product => product.supplier?.supplierName)
+          .filter((name): name is string => !!name)
+      )
+    ];
+  }
 
-    this.loading = true;
-    this.cdr.detectChanges();
+  applyFilters(): void {
+    const searchValue = this.keyword.trim().toLowerCase();
 
-    this.productService.searchProducts(value).subscribe({
-      next: (data) => {
-        this.products = Array.isArray(data) ? [...data] : [];
-        this.loading = false;
-        this.cdr.detectChanges();
-      },
-      error: (error) => {
-        console.error('PRODUCT SEARCH ERROR:', error);
-        this.products = [];
-        this.loading = false;
-        this.cdr.detectChanges();
+    this.products = this.allProducts.filter(product => {
+      const productName = (product.productName || '').toLowerCase();
+      const sku = (product.sku || '').toLowerCase();
+      const category = product.category?.categoryName || '';
+      const supplier = product.supplier?.supplierName || '';
+      const price = Number(product.price || 0);
+
+      const matchesSearch =
+        !searchValue ||
+        productName.includes(searchValue) ||
+        sku.includes(searchValue);
+
+      const matchesCategory =
+        this.selectedCategory === 'ALL' ||
+        category === this.selectedCategory;
+
+      const matchesSupplier =
+        this.selectedSupplier === 'ALL' ||
+        supplier === this.selectedSupplier;
+
+      let matchesPrice = true;
+
+      if (this.selectedPrice === 'LOW') {
+        matchesPrice = price < 100;
       }
+
+      if (this.selectedPrice === 'MEDIUM') {
+        matchesPrice = price >= 100 && price <= 1000;
+      }
+
+      if (this.selectedPrice === 'HIGH') {
+        matchesPrice = price > 1000;
+      }
+
+      return matchesSearch && matchesCategory && matchesSupplier && matchesPrice;
     });
+  }
+
+  resetFilters(): void {
+    this.keyword = '';
+    this.selectedCategory = 'ALL';
+    this.selectedSupplier = 'ALL';
+    this.selectedPrice = 'ALL';
+    this.applyFilters();
   }
 
   deleteProduct(id: number | undefined): void {
@@ -98,7 +152,8 @@ export class ProductListComponent implements OnInit {
 
     this.productService.deleteProduct(id).subscribe({
       next: () => {
-        this.products = this.products.filter(product => product.id !== id);
+        this.allProducts = this.allProducts.filter(product => product.id !== id);
+        this.applyFilters();
         this.cdr.detectChanges();
       },
       error: (error) => {

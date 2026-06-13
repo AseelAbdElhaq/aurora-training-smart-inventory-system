@@ -2,9 +2,10 @@ package com.smartinventory.controller;
 
 import com.smartinventory.model.User;
 import com.smartinventory.repository.UserRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/users")
@@ -18,43 +19,105 @@ public class UserController {
     }
 
     @GetMapping
-    public List<User> getUsers() {
-        return userRepository.findByIsActiveTrue();
+    public List<Map<String, Object>> getUsers() {
+        return userRepository.findAll()
+                .stream()
+                .filter(user -> user.getIsActive() == null || user.getIsActive())
+                .map(this::toDto)
+                .toList();
     }
 
     @GetMapping("/{id}")
-    public User getUser(@PathVariable Integer id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public ResponseEntity<?> getUser(@PathVariable Integer id) {
+        User user = userRepository.findById(id).orElse(null);
+
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(toDto(user));
     }
 
     @PostMapping
-    public User createUser(@RequestBody User user) {
+    public ResponseEntity<?> createUser(@RequestBody User user) {
+        if (user.getFullName() == null || user.getFullName().isBlank()) {
+            return ResponseEntity.badRequest().body("Full name is required");
+        }
+
+        if (user.getUsername() == null || user.getUsername().isBlank()) {
+            return ResponseEntity.badRequest().body("Username is required");
+        }
+
+        if (user.getEmail() == null || user.getEmail().isBlank()) {
+            return ResponseEntity.badRequest().body("Email is required");
+        }
+
+        if (user.getPassword() == null || user.getPassword().isBlank()) {
+            return ResponseEntity.badRequest().body("Password is required");
+        }
+
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            return ResponseEntity.badRequest().body("Email already exists");
+        }
+
         user.setIsActive(true);
-        return userRepository.save(user);
+
+        User saved = userRepository.save(user);
+        return ResponseEntity.ok(toDto(saved));
     }
 
     @PutMapping("/{id}")
-    public User updateUser(@PathVariable Integer id, @RequestBody User data) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public ResponseEntity<?> updateUser(@PathVariable Integer id, @RequestBody User data) {
+        User user = userRepository.findById(id).orElse(null);
+
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
 
         user.setFullName(data.getFullName());
-        user.setEmail(data.getEmail());
-        user.setPassword(data.getPassword());
-        user.setPhone(data.getPhone());
         user.setUsername(data.getUsername());
+        user.setEmail(data.getEmail());
+        user.setPhone(data.getPhone());
         user.setRoleId(data.getRoleId());
 
-        return userRepository.save(user);
+        if (data.getPassword() != null && !data.getPassword().isBlank()) {
+            user.setPassword(data.getPassword());
+        }
+
+        if (user.getIsActive() == null) {
+            user.setIsActive(true);
+        }
+
+        User saved = userRepository.save(user);
+        return ResponseEntity.ok(toDto(saved));
     }
 
     @DeleteMapping("/{id}")
-    public void softDeleteUser(@PathVariable Integer id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public ResponseEntity<?> softDeleteUser(@PathVariable Integer id) {
+        User user = userRepository.findById(id).orElse(null);
+
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
 
         user.setIsActive(false);
         userRepository.save(user);
+
+        return ResponseEntity.ok().build();
+    }
+
+    private Map<String, Object> toDto(User user) {
+        Map<String, Object> dto = new LinkedHashMap<>();
+
+        dto.put("id", user.getId());
+        dto.put("fullName", user.getFullName());
+        dto.put("username", user.getUsername());
+        dto.put("email", user.getEmail());
+        dto.put("password", user.getPassword());
+        dto.put("phone", user.getPhone());
+        dto.put("roleId", user.getRoleId());
+        dto.put("isActive", user.getIsActive());
+
+        return dto;
     }
 }

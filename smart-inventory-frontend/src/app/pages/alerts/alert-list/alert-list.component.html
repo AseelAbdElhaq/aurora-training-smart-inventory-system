@@ -1,0 +1,40 @@
+<!-- src/app/pages/alerts/alert-list/alert-list.component.html -->
+
+<section class="page">
+  <div class="page-header">
+    <div>
+      <h1>Alerts</h1>
+      <p>System warnings for low stock and warehouse capacity.</p>
+    </div>
+
+    <button class="primary-btn" (click)="generateAlerts()">
+      Generate Alerts
+    </button>
+  </div>
+
+  @if (loading) {
+    <div class="empty">Loading alerts...</div>
+  } @else {
+    @if (alerts.length === 0) {
+      <div class="empty">No alerts found.</div>
+    } @else {
+      <div class="alerts-grid">
+        @for (alertItem of alerts; track alertItem.id) {
+          <div class="alert-card">
+            <div class="alert-top">
+              <span class="badge">{{ alertItem.alertType }}</span>
+
+              <button class="delete-btn" (click)="deleteAlert(alertItem.id)">
+                Delete
+              </button>
+            </div>
+
+            <p>{{ alertItem.message }}</p>
+
+            <small>{{ alertItem.createdAt | date:'medium' }}</small>
+          </div>
+        }
+      </div>
+    }
+  }
+</section>

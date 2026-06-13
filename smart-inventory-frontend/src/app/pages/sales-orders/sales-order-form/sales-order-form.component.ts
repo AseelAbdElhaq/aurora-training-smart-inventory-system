@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormArray,
@@ -9,11 +9,11 @@ import {
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { ProductService, Product } from '../../../services/product.service';
 import { WarehouseService } from '../../../services/warehouse.service';
 import {
   SalesOrder,
-  SalesOrderService
+  SalesOrderService,
+  WarehouseProduct
 } from '../../../services/sales-order.service';
 
 type Role =
@@ -34,21 +34,22 @@ export class SalesOrderFormComponent implements OnInit {
   form!: FormGroup;
 
   warehouses: any[] = [];
-  products: Product[] = [];
+  warehouseProducts: WarehouseProduct[] = [];
 
   orderId: number | null = null;
   loading = false;
   saving = false;
+  productsLoading = false;
 
   userRole: Role = 'ADMIN';
 
   constructor(
     private fb: FormBuilder,
-    private productService: ProductService,
     private warehouseService: WarehouseService,
     private salesOrderService: SalesOrderService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -64,7 +65,7 @@ export class SalesOrderFormComponent implements OnInit {
 
     this.orderId = Number(this.route.snapshot.paramMap.get('id')) || null;
 
-    this.loadDropdowns();
+    this.loadWarehouses();
 
     if (this.orderId) {
       this.loadOrder(this.orderId);
@@ -99,54 +100,130 @@ export class SalesOrderFormComponent implements OnInit {
 
   addItem(): void {
     this.items.push(this.createItem());
+    this.cdr.detectChanges();
   }
 
   removeItem(index: number): void {
     if (this.items.length === 1) return;
     this.items.removeAt(index);
+    this.cdr.detectChanges();
   }
 
-  loadDropdowns(): void {
-    this.productService.getProducts().subscribe({
-      next: data => this.products = data
-    });
-
+  loadWarehouses(): void {
     this.warehouseService.getWarehouses().subscribe({
-      next: data => this.warehouses = data
+      next: data => {
+        this.warehouses = [...(data || [])];
+        this.cdr.detectChanges();
+      },
+      error: error => {
+        console.error('Warehouses load error:', error);
+        this.warehouses = [];
+        this.cdr.detectChanges();
+      }
     });
   }
 
   loadOrder(id: number): void {
     this.loading = true;
+    this.cdr.detectChanges();
 
     this.salesOrderService.getOrderById(id).subscribe({
       next: order => {
+        const warehouseId = order.warehouse?.id || '';
+
         this.form.patchValue({
-          customerName: order.customerName,
-          warehouseId: order.warehouse?.id
+          customerName: order.customerName || '',
+          warehouseId
         });
 
-        this.items.clear();
+        this.loadWarehouseProducts(Number(warehouseId), false, () => {
+          this.items.clear();
 
-        for (const item of order.items || []) {
-          this.items.push(
-            this.fb.group({
-              productId: [item.product?.id, Validators.required],
-              quantity: [item.quantity, [Validators.required, Validators.min(1)]],
-              unitPrice: [item.unitPrice, [Validators.required, Validators.min(0)]]
-            })
-          );
-        }
+          for (const item of order.items || []) {
+            this.items.push(
+              this.fb.group({
+                productId: [item.product?.id || '', Validators.required],
+                quantity: [item.quantity || 1, [Validators.required, Validators.min(1)]],
+                unitPrice: [item.unitPrice || 0, [Validators.required, Validators.min(0)]]
+              })
+            );
+          }
 
-        if (this.items.length === 0) {
-          this.addItem();
-        }
+          if (this.items.length === 0) {
+            this.addItem();
+          }
 
-        this.loading = false;
+          this.loading = false;
+          this.cdr.detectChanges();
+        });
       },
-      error: () => {
+      error: error => {
+        console.error('Sales order load error:', error);
         this.loading = false;
+        this.cdr.detectChanges();
         alert('Failed to load sales order');
+      }
+    });
+  }
+
+  onWarehouseChange(): void {
+    const warehouseId = Number(this.form.get('warehouseId')?.value);
+
+    this.warehouseProducts = [];
+
+    this.items.controls.forEach(row => {
+      row.patchValue({
+        productId: '',
+        quantity: 1,
+        unitPrice: 0
+      });
+    });
+
+    if (!warehouseId) {
+      this.cdr.detectChanges();
+      return;
+    }
+
+    this.loadWarehouseProducts(warehouseId, true);
+  }
+
+  loadWarehouseProducts(
+    warehouseId: number,
+    showAlertIfEmpty = false,
+    afterLoad?: () => void
+  ): void {
+    if (!warehouseId) {
+      this.warehouseProducts = [];
+      if (afterLoad) afterLoad();
+      this.cdr.detectChanges();
+      return;
+    }
+
+    this.productsLoading = true;
+    this.cdr.detectChanges();
+
+    this.salesOrderService.getProductsByWarehouse(warehouseId).subscribe({
+      next: data => {
+        this.warehouseProducts = [...(data || [])];
+        this.productsLoading = false;
+
+        if (showAlertIfEmpty && this.warehouseProducts.length === 0) {
+          alert('This warehouse has no available products in stock.');
+        }
+
+        if (afterLoad) afterLoad();
+
+        this.cdr.detectChanges();
+      },
+      error: error => {
+        console.error('Warehouse products load error:', error);
+        this.warehouseProducts = [];
+        this.productsLoading = false;
+
+        if (afterLoad) afterLoad();
+
+        this.cdr.detectChanges();
+        alert('Failed to load products for selected warehouse');
       }
     });
   }
@@ -155,13 +232,38 @@ export class SalesOrderFormComponent implements OnInit {
     const row = this.items.at(index);
     const productId = Number(row.get('productId')?.value);
 
-    const product = this.products.find(p => p.id === productId);
+    const product = this.warehouseProducts.find(p => Number(p.id) === productId);
 
     if (product) {
       row.patchValue({
-        unitPrice: product.price || 0
+        unitPrice: Number(product.price) || 0
+      });
+    } else {
+      row.patchValue({
+        unitPrice: 0
       });
     }
+
+    this.cdr.detectChanges();
+  }
+
+  getAvailableQuantity(index: number): number | null {
+    const row = this.items.at(index);
+    const productId = Number(row.get('productId')?.value);
+
+    if (!productId) return null;
+
+    const product = this.warehouseProducts.find(p => Number(p.id) === productId);
+
+    return product ? Number(product.availableQuantity) : null;
+  }
+
+  getProductStockClass(index: number): string {
+    const available = this.getAvailableQuantity(index);
+    if (available === null) return '';
+
+    if (available <= 5) return 'low-stock';
+    return 'good-stock';
   }
 
   getItemTotal(index: number): number {
@@ -188,10 +290,27 @@ export class SalesOrderFormComponent implements OnInit {
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.cdr.detectChanges();
       return;
     }
 
+    for (let i = 0; i < this.items.length; i++) {
+      const quantity = Number(this.items.at(i).get('quantity')?.value);
+      const available = this.getAvailableQuantity(i);
+
+      if (available === null) {
+        alert('Please select product from selected warehouse.');
+        return;
+      }
+
+      if (quantity > available) {
+        alert(`Quantity is more than available stock. Available: ${available}`);
+        return;
+      }
+    }
+
     this.saving = true;
+    this.cdr.detectChanges();
 
     const value = this.form.value;
 
@@ -220,10 +339,16 @@ export class SalesOrderFormComponent implements OnInit {
     request.subscribe({
       next: () => {
         this.saving = false;
-        this.router.navigate(['/sales-orders']);
+        this.cdr.detectChanges();
+
+        this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+          this.router.navigate(['/sales-orders']);
+        });
       },
       error: error => {
+        console.error('Save sales order error:', error);
         this.saving = false;
+        this.cdr.detectChanges();
         alert(error.error || 'Failed to save sales order');
       }
     });

@@ -33,9 +33,10 @@ export interface PurchaseOrder {
   id?: number;
   supplier: Supplier | null;
   warehouse: Warehouse | null;
-  status?: 'PENDING' | 'RECEIVED' | 'CANCELLED' | string;
+  status?: string;
   totalAmount?: number;
   createdAt?: string;
+  isDeleted?: boolean;
   items: PurchaseOrderItem[];
 }
 
@@ -69,5 +70,9 @@ export class PurchaseOrderService {
 
   cancelOrder(id: number): Observable<PurchaseOrder> {
     return this.http.put<PurchaseOrder>(`${this.apiUrl}/${id}/cancel`, {});
+  }
+
+  deleteOrder(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

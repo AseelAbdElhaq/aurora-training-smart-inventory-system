@@ -1,5 +1,7 @@
 .stock-page {
   width: 100%;
+      padding-bottom: 65px;
+
 }
 
 .page-header {
@@ -50,42 +52,55 @@
 }
 
 .stock-card {
-  padding: 22px;
-  border-radius: 22px;
-  background: white;
-  border: 1px solid #ece7da;
+  background: #ffffff;
+  border: 1px solid #ebe7df;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 12px 35px rgba(17, 24, 39, 0.05);
+  transition: all 0.25s ease;
 }
 
+.stock-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 45px rgba(17, 24, 39, 0.10);
+}
 .stock-top {
   margin-bottom: 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
-
 .stock-top h3 {
   margin: 0;
-  font-size: 18px;
-  font-weight: 800;
-  color: #111827;
-}
-
-.stock-top p {
-  margin-top: 5px;
-  color: #6b7280;
-}
-
-.qty-badge {
-  min-width: 64px;
-  height: 64px;
-  border-radius: 18px;
-  background: #f4ecd6;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   font-size: 20px;
   font-weight: 900;
   color: #111827;
+}
+.stock-top p {
+  margin-top: 6px;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 700;
+}
+.qty-badge {
+  min-width: 70px;
+  height: 70px;
+  border-radius: 20px;
+  background: linear-gradient(
+    135deg,
+    #f6e7bb,
+    #e9c86d
+  );
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 22px;
+  font-weight: 900;
+  color: #111827;
+
+  box-shadow: 0 8px 20px rgba(217,154,0,.18);
 }
 
 .stock-actions {
@@ -106,11 +121,21 @@
 .edit-btn {
   background: #111827;
   color: white;
+  transition: .2s;
+}
+
+.edit-btn:hover {
+  background: #d99a00;
 }
 
 .delete-btn {
-  background: #f8f2e3;
-  color: #111827;
+  background: #fff3f3;
+  color: #dc2626;
+  transition: .2s;
+}
+
+.delete-btn:hover {
+  background: #ffe0e0;
 }
 
 .empty-state {
@@ -121,4 +146,27 @@
   text-align: center;
   color: #6b7280;
   font-weight: 700;
+}
+.status-badge {
+  margin-top: 10px;
+  display: inline-flex;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.low {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.medium {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.high {
+  background: #dcfce7;
+  color: #166534;
 }
