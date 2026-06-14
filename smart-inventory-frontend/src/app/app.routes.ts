@@ -270,7 +270,13 @@ export const routes: Routes = [
     import('./pages/ai-insights/ai-insight-list/ai-insight-list.component')
       .then(m => m.AiInsightListComponent),
   canActivate: [roleGuard(['ADMIN', 'INVENTORY_MANAGER', 'PURCHASING_MANAGER'])]
-},
+},{
+  path: 'profile',
+  loadComponent: () =>
+    import('./pages/profile/profile.component')
+      .then(m => m.ProfileComponent),
+  canActivate: [roleGuard(['ADMIN', 'INVENTORY_MANAGER', 'PURCHASING_MANAGER', 'WAREHOUSE_EMPLOYEE'])]
+}
     ]
   },
 

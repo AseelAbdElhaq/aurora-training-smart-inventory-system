@@ -16,6 +16,8 @@ type Role =
   | 'WAREHOUSE_EMPLOYEE'
   | 'PURCHASING_MANAGER';
 
+type ViewMode = 'CARD' | 'TABLE';
+
 @Component({
   selector: 'app-stock-list',
   standalone: true,
@@ -28,6 +30,7 @@ export class StockListComponent implements OnInit {
 
   stocks: Stock[] = [];
   loading = false;
+  viewMode: ViewMode = 'CARD';
 
   constructor(
     private stockService: StockService,
@@ -35,7 +38,17 @@ export class StockListComponent implements OnInit {
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     if (isPlatformBrowser(this.platformId)) {
-      this.userRole = (localStorage.getItem('role') as Role) || 'ADMIN';
+      this.userRole =
+        ((localStorage.getItem('role') || 'ADMIN')
+          .trim()
+          .toUpperCase()
+          .replace('ROLE_', '') as Role);
+
+      const savedView = localStorage.getItem('stockViewMode') as ViewMode | null;
+
+      if (savedView === 'CARD' || savedView === 'TABLE') {
+        this.viewMode = savedView;
+      }
     }
   }
 
@@ -48,18 +61,26 @@ export class StockListComponent implements OnInit {
     this.cdr.detectChanges();
 
     this.stockService.getAllStocks().subscribe({
-      next: (data) => {
+      next: data => {
         this.stocks = Array.isArray(data) ? [...data] : [];
         this.loading = false;
         this.cdr.detectChanges();
       },
-      error: (error) => {
+      error: error => {
         console.error('STOCK LOAD ERROR:', error);
         this.stocks = [];
         this.loading = false;
         this.cdr.detectChanges();
       }
     });
+  }
+
+  setViewMode(mode: ViewMode): void {
+    this.viewMode = mode;
+
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('stockViewMode', mode);
+    }
   }
 
   deleteStock(id: number | undefined): void {
@@ -73,11 +94,20 @@ export class StockListComponent implements OnInit {
         this.stocks = this.stocks.filter(stock => stock.id !== id);
         this.cdr.detectChanges();
       },
-      error: (error) => {
+      error: error => {
         console.error('STOCK DELETE ERROR:', error);
         alert('Failed to delete stock');
       }
     });
+  }
+
+  getStockStatus(quantity: number | undefined): string {
+    const qty = Number(quantity || 0);
+
+    if (qty <= 5) return 'Low Stock';
+    if (qty <= 20) return 'Medium Stock';
+
+    return 'Healthy Stock';
   }
 
   canAddStock(): boolean {

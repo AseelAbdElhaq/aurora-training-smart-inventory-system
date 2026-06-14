@@ -1,4 +1,3 @@
-
 <section class="page">
   <div class="page-header">
     <div>
@@ -6,29 +5,94 @@
       <p>Rule-based smart recommendations for inventory and warehouses.</p>
     </div>
 
-    <button class="primary-btn" (click)="loadInsights()">
-      Refresh
-    </button>
+    <div class="header-actions">
+      <div class="view-toggle">
+        <button
+          type="button"
+          [class.active]="viewMode === 'CARD'"
+          (click)="setViewMode('CARD')"
+        >
+          <span class="material-symbols-rounded">grid_view</span>
+          Card
+        </button>
+
+        <button
+          type="button"
+          [class.active]="viewMode === 'TABLE'"
+          (click)="setViewMode('TABLE')"
+        >
+          <span class="material-symbols-rounded">table_rows</span>
+          Table
+        </button>
+      </div>
+
+      <button class="primary-btn" type="button" (click)="loadInsights()">
+        <span class="material-symbols-rounded">refresh</span>
+        Refresh
+      </button>
+    </div>
   </div>
 
   @if (loading) {
     <div class="empty">Loading AI insights...</div>
+  } @else if (errorMessage) {
+    <div class="empty error">{{ errorMessage }}</div>
+  } @else if (insights.length === 0) {
+    <div class="empty">No AI insights found.</div>
   } @else {
-    <div class="insights-grid">
-      @for (insight of insights; track insight.title + insight.message) {
-        <div class="insight-card">
-          <span class="type">{{ insight.type }}</span>
 
-          <h3>{{ insight.title }}</h3>
+    @if (viewMode === 'CARD') {
+      <div class="insights-grid">
+        @for (insight of insights; track insight.title + insight.message) {
+          <div class="insight-card">
+            <span class="type">{{ insight.type }}</span>
 
-          <p>{{ insight.message }}</p>
+            <h3>{{ insight.title }}</h3>
 
-          <div class="recommendation">
-            <strong>Recommendation:</strong>
-            <span>{{ insight.recommendation }}</span>
+            <p>{{ insight.message }}</p>
+
+            <div class="recommendation">
+              <strong>Recommendation:</strong>
+              <span>{{ insight.recommendation }}</span>
+            </div>
           </div>
-        </div>
-      }
-    </div>
+        }
+      </div>
+    } @else {
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Type</th>
+              <th>Title</th>
+              <th>Message</th>
+              <th>Recommendation</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (insight of insights; track insight.title + insight.message; let i = $index) {
+              <tr>
+                <td>{{ i + 1 }}</td>
+
+                <td>
+                  <span class="type table-type">{{ insight.type }}</span>
+                </td>
+
+                <td>
+                  <strong>{{ insight.title }}</strong>
+                </td>
+
+                <td>{{ insight.message }}</td>
+
+                <td>{{ insight.recommendation }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
   }
 </section>

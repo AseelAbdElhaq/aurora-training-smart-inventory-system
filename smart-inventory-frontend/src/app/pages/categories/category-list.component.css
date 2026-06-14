@@ -44,6 +44,10 @@
   gap: 8px;
 }
 
+.primary-btn span {
+  font-size: 22px;
+}
+
 .categories-card {
   background: #ffffff;
   border: 1px solid #ebe7df;
@@ -55,7 +59,10 @@
 .card-header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  gap: 14px;
   margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
 .search-box {
@@ -70,11 +77,52 @@
   gap: 10px;
 }
 
+.search-box span {
+  color: #111827;
+}
+
 .search-box input {
   width: 100%;
   border: none;
   outline: none;
   font-weight: 700;
+  color: #111827;
+  background: transparent;
+}
+
+.view-toggle {
+  height: 44px;
+  padding: 4px;
+  border: 1px solid #e5e1d8;
+  border-radius: 14px;
+  background: #faf8f2;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.view-toggle button {
+  height: 34px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 11px;
+  background: transparent;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.view-toggle button span {
+  font-size: 20px;
+}
+
+.view-toggle button.active {
+  background: #111827;
+  color: #ffffff;
 }
 
 .category-grid {
@@ -94,7 +142,8 @@
   gap: 14px;
 }
 
-.category-icon {
+.category-icon,
+.mini-icon {
   width: 48px;
   height: 48px;
   border-radius: 15px;
@@ -102,10 +151,17 @@
   color: #b98200;
   display: grid;
   place-items: center;
+  flex-shrink: 0;
+}
+
+.category-icon span,
+.mini-icon span {
+  font-size: 24px;
 }
 
 .category-info {
   flex: 1;
+  min-width: 0;
 }
 
 .category-info h3 {
@@ -113,6 +169,7 @@
   font-size: 18px;
   font-weight: 900;
   color: #111827;
+  word-break: break-word;
 }
 
 .category-info p {
@@ -120,11 +177,13 @@
   color: #6b7280;
   font-size: 14px;
   font-weight: 600;
+  line-height: 1.35;
 }
 
 .actions {
   display: flex;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .icon-btn {
@@ -140,13 +199,137 @@
   cursor: pointer;
 }
 
+.icon-btn span {
+  font-size: 21px;
+}
+
+.icon-btn:hover {
+  background: #f4ecd6;
+  color: #111827;
+}
+
 .icon-btn.danger {
   color: #dc2626;
 }
 
-.empty-message {
+.icon-btn.danger:hover {
+  background: #fee2e2;
+}
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #eee7da;
+  border-radius: 18px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+}
+
+thead {
+  background: #f8f5ed;
+}
+
+th {
+  padding: 16px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 900;
+  color: #374151;
+  white-space: nowrap;
+}
+
+td {
+  padding: 16px;
+  border-top: 1px solid #eee9df;
+  font-size: 14px;
+  font-weight: 700;
+  color: #4b5563;
+  vertical-align: middle;
+}
+
+td strong {
+  color: #111827;
+  font-weight: 900;
+}
+
+.table-name {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mini-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+}
+
+.mini-icon span {
+  font-size: 21px;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #166534;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.loading-state {
+  min-height: 240px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border: 5px solid #f2e5bf;
+  border-top-color: #d99a00;
+  animation: spin 0.8s linear infinite;
+}
+
+.loading-state h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 900;
+  color: #111827;
+}
+
+.loading-state p {
+  margin: 6px 0 0;
   color: #6b7280;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.empty-message {
+  padding: 44px 0;
+  text-align: center;
+  color: #6b7280;
+  font-size: 15px;
   font-weight: 800;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (max-width: 850px) {
@@ -161,5 +344,18 @@
 
   .search-box {
     width: 100%;
+  }
+
+  .card-header {
+    align-items: stretch;
+  }
+
+  .view-toggle {
+    width: 100%;
+  }
+
+  .view-toggle button {
+    flex: 1;
+    justify-content: center;
   }
 }

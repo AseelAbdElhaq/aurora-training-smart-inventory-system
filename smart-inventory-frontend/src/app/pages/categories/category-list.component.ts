@@ -17,6 +17,8 @@ type Role =
   | 'WAREHOUSE_EMPLOYEE'
   | 'PURCHASING_MANAGER';
 
+type ViewMode = 'CARD' | 'TABLE';
+
 @Component({
   selector: 'app-category-list',
   standalone: true,
@@ -27,9 +29,12 @@ type Role =
 export class CategoryListComponent implements OnInit {
   userRole: Role = 'ADMIN';
 
+  allCategories: Category[] = [];
   categories: Category[] = [];
+
   keyword = '';
   loading = false;
+  viewMode: ViewMode = 'CARD';
 
   constructor(
     private categoryService: CategoryService,
@@ -37,7 +42,16 @@ export class CategoryListComponent implements OnInit {
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     if (isPlatformBrowser(this.platformId)) {
-      this.userRole = (localStorage.getItem('role') as Role) || 'ADMIN';
+      this.userRole =
+        ((localStorage.getItem('role') || 'ADMIN')
+          .trim()
+          .toUpperCase()
+          .replace('ROLE_', '') as Role);
+
+      const savedView = localStorage.getItem('categoryViewMode') as ViewMode | null;
+      if (savedView === 'CARD' || savedView === 'TABLE') {
+        this.viewMode = savedView;
+      }
     }
   }
 
@@ -50,13 +64,15 @@ export class CategoryListComponent implements OnInit {
     this.cdr.detectChanges();
 
     this.categoryService.getCategories().subscribe({
-      next: (data) => {
-        this.categories = Array.isArray(data) ? [...data] : [];
+      next: data => {
+        this.allCategories = Array.isArray(data) ? [...data] : [];
+        this.applySearch();
         this.loading = false;
         this.cdr.detectChanges();
       },
-      error: (error) => {
+      error: error => {
         console.error('CATEGORY ERROR:', error);
+        this.allCategories = [];
         this.categories = [];
         this.loading = false;
         this.cdr.detectChanges();
@@ -64,48 +80,44 @@ export class CategoryListComponent implements OnInit {
     });
   }
 
-  searchCategories(): void {
-    const value = this.keyword.trim();
+  applySearch(): void {
+    const value = this.keyword.trim().toLowerCase();
 
-    if (!value) {
-      this.loadCategories();
-      return;
-    }
+    this.categories = this.allCategories.filter(category => {
+      const name = (category.categoryName || '').toLowerCase();
+      const description = (category.description || '').toLowerCase();
 
-    this.loading = true;
-    this.cdr.detectChanges();
-
-    this.categoryService.searchCategories(value).subscribe({
-      next: (data) => {
-        this.categories = Array.isArray(data) ? [...data] : [];
-        this.loading = false;
-        this.cdr.detectChanges();
-      },
-      error: (error) => {
-        console.error('SEARCH ERROR:', error);
-        this.categories = [];
-        this.loading = false;
-        this.cdr.detectChanges();
-      }
+      return !value || name.includes(value) || description.includes(value);
     });
+  }
+
+  searchCategories(): void {
+    this.applySearch();
+  }
+
+  setViewMode(mode: ViewMode): void {
+    this.viewMode = mode;
+
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('categoryViewMode', mode);
+    }
   }
 
   deleteCategory(id: number | undefined): void {
     if (!id) return;
 
     const confirmed = confirm('Are you sure you want to delete this category?');
-
     if (!confirmed) return;
 
     this.categoryService.deleteCategory(id).subscribe({
       next: () => {
-        this.categories = this.categories.filter(
-          category => category.id !== id
-        );
+        this.allCategories = this.allCategories.filter(category => category.id !== id);
+        this.applySearch();
         this.cdr.detectChanges();
       },
-      error: (error) => {
+      error: error => {
         console.error('DELETE CATEGORY ERROR:', error);
+        alert(error.error || 'Failed to delete category');
       }
     });
   }

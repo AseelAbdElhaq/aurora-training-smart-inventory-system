@@ -17,7 +17,6 @@ export interface User {
   providedIn: 'root'
 })
 export class UserService {
-
   private apiUrl = 'http://localhost:8080/api/users';
 
   constructor(private http: HttpClient) {}
@@ -40,5 +39,13 @@ export class UserService {
 
   deleteUser(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  getProfileByEmail(email: string): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/profile/email/${email}`);
+  }
+
+  updateProfile(id: number, user: User): Observable<User> {
+    return this.http.put<User>(`${this.apiUrl}/profile/${id}`, user);
   }
 }

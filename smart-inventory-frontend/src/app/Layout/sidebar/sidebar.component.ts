@@ -71,7 +71,7 @@ export class SidebarComponent {
       roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE'],
       children: [
         { label: 'Add Stock', icon: 'add_box', route: '/stock/add', roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE'] },
-        { label: 'Stock List', icon: 'format_list_bulleted', route: '/stock', roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE'  ] },
+        { label: 'Stock List', icon: 'format_list_bulleted', route: '/stock', roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE'] },
         { label: 'Transfer Stock', icon: 'sync_alt', route: '/stock/transfer', roles: ['ADMIN', 'INVENTORY_MANAGER'] }
       ]
     },
@@ -130,10 +130,10 @@ export class SidebarComponent {
       roles: ['ADMIN']
     },
     {
-      label: 'Settings',
-      icon: 'settings',
-      route: '/settings',
-      roles: ['ADMIN']
+      label: 'Profile',
+      icon: 'account_circle',
+      route: '/profile',
+      roles: ['ADMIN', 'INVENTORY_MANAGER', 'WAREHOUSE_EMPLOYEE', 'PURCHASING_MANAGER']
     }
   ];
 
@@ -142,10 +142,10 @@ export class SidebarComponent {
     private router: Router
   ) {
     if (isPlatformBrowser(this.platformId)) {
-      const savedRole = localStorage.getItem('role') as Role | null;
+      const savedRole = localStorage.getItem('role');
 
       if (savedRole) {
-        this.userRole = savedRole;
+        this.userRole = savedRole.trim().toUpperCase().replace('ROLE_', '') as Role;
       }
     }
 

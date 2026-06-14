@@ -16,6 +16,8 @@ type Role =
   | 'WAREHOUSE_EMPLOYEE'
   | 'PURCHASING_MANAGER';
 
+type ViewMode = 'CARD' | 'TABLE';
+
 @Component({
   selector: 'app-warehouse-list',
   standalone: true,
@@ -28,6 +30,7 @@ export class WarehouseListComponent implements OnInit {
 
   warehouses: Warehouse[] = [];
   loading = false;
+  viewMode: ViewMode = 'CARD';
 
   constructor(
     private warehouseService: WarehouseService,
@@ -35,7 +38,17 @@ export class WarehouseListComponent implements OnInit {
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     if (isPlatformBrowser(this.platformId)) {
-      this.userRole = (localStorage.getItem('role') as Role) || 'ADMIN';
+      this.userRole =
+        ((localStorage.getItem('role') || 'ADMIN')
+          .trim()
+          .toUpperCase()
+          .replace('ROLE_', '') as Role);
+
+      const savedView = localStorage.getItem('warehouseViewMode') as ViewMode | null;
+
+      if (savedView === 'CARD' || savedView === 'TABLE') {
+        this.viewMode = savedView;
+      }
     }
   }
 
@@ -48,12 +61,12 @@ export class WarehouseListComponent implements OnInit {
     this.cdr.detectChanges();
 
     this.warehouseService.getWarehouses().subscribe({
-      next: (data) => {
+      next: data => {
         this.warehouses = Array.isArray(data) ? [...data] : [];
         this.loading = false;
         this.cdr.detectChanges();
       },
-      error: (error) => {
+      error: error => {
         console.error('WAREHOUSE ERROR:', error);
         this.warehouses = [];
         this.loading = false;
@@ -62,18 +75,31 @@ export class WarehouseListComponent implements OnInit {
     });
   }
 
+  setViewMode(mode: ViewMode): void {
+    this.viewMode = mode;
+
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('warehouseViewMode', mode);
+    }
+  }
+
   getUsedPercentage(warehouse: Warehouse): number {
     if (!warehouse.capacity || warehouse.capacity === 0) {
       return 0;
     }
 
-    return Math.round(
+    const used = Math.round(
       ((warehouse.currentCapacity || 0) / warehouse.capacity) * 100
     );
+
+    return Math.min(100, Math.max(0, used));
   }
 
   getAvailableCapacity(warehouse: Warehouse): number {
-    return warehouse.capacity - (warehouse.currentCapacity || 0);
+    return Math.max(
+      0,
+      Number(warehouse.capacity || 0) - Number(warehouse.currentCapacity || 0)
+    );
   }
 
   deleteWarehouse(id: number | undefined): void {
@@ -90,8 +116,9 @@ export class WarehouseListComponent implements OnInit {
         );
         this.cdr.detectChanges();
       },
-      error: (error) => {
+      error: error => {
         console.error('DELETE WAREHOUSE ERROR:', error);
+        alert(error.error || 'Failed to delete warehouse');
       }
     });
   }

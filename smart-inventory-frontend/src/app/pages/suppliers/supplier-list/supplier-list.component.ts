@@ -19,6 +19,8 @@ type Role =
   | 'WAREHOUSE_EMPLOYEE'
   | 'PURCHASING_MANAGER';
 
+type ViewMode = 'CARD' | 'TABLE';
+
 @Component({
   selector: 'app-supplier-list',
   standalone: true,
@@ -31,6 +33,7 @@ export class SupplierListComponent implements OnInit {
 
   suppliers: Supplier[] = [];
   loading = false;
+  viewMode: ViewMode = 'CARD';
 
   constructor(
     private supplierService: SupplierService,
@@ -38,7 +41,17 @@ export class SupplierListComponent implements OnInit {
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     if (isPlatformBrowser(this.platformId)) {
-      this.userRole = (localStorage.getItem('role') as Role) || 'ADMIN';
+      this.userRole =
+        ((localStorage.getItem('role') || 'ADMIN')
+          .trim()
+          .toUpperCase()
+          .replace('ROLE_', '') as Role);
+
+      const savedView = localStorage.getItem('supplierViewMode') as ViewMode | null;
+
+      if (savedView === 'CARD' || savedView === 'TABLE') {
+        this.viewMode = savedView;
+      }
     }
   }
 
@@ -51,18 +64,26 @@ export class SupplierListComponent implements OnInit {
     this.cdr.detectChanges();
 
     this.supplierService.getSuppliers().subscribe({
-      next: (data) => {
+      next: data => {
         this.suppliers = Array.isArray(data) ? [...data] : [];
         this.loading = false;
         this.cdr.detectChanges();
       },
-      error: (error) => {
+      error: error => {
         console.error('SUPPLIER ERROR:', error);
         this.suppliers = [];
         this.loading = false;
         this.cdr.detectChanges();
       }
     });
+  }
+
+  setViewMode(mode: ViewMode): void {
+    this.viewMode = mode;
+
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('supplierViewMode', mode);
+    }
   }
 
   deleteSupplier(id: number | undefined): void {
@@ -79,8 +100,9 @@ export class SupplierListComponent implements OnInit {
         );
         this.cdr.detectChanges();
       },
-      error: (error) => {
+      error: error => {
         console.error('DELETE SUPPLIER ERROR:', error);
+        alert(error.error || 'Failed to delete supplier');
       }
     });
   }

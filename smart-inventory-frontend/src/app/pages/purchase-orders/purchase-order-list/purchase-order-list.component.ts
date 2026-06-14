@@ -1,11 +1,13 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, ChangeDetectorRef, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 
 import {
   PurchaseOrder,
   PurchaseOrderService
 } from '../../../services/purchase-order.service';
+
+type ViewMode = 'CARD' | 'TABLE';
 
 @Component({
   selector: 'app-purchase-order-list',
@@ -24,12 +26,22 @@ export class PurchaseOrderListComponent implements OnInit {
 
   selectedStatus = 'ALL';
   searchText = '';
+  viewMode: ViewMode = 'CARD';
 
   constructor(
     private purchaseOrderService: PurchaseOrderService,
     private router: Router,
-    private cdr: ChangeDetectorRef
-  ) {}
+    private cdr: ChangeDetectorRef,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
+    if (isPlatformBrowser(this.platformId)) {
+      const savedView = localStorage.getItem('purchaseOrderViewMode') as ViewMode | null;
+
+      if (savedView === 'CARD' || savedView === 'TABLE') {
+        this.viewMode = savedView;
+      }
+    }
+  }
 
   ngOnInit(): void {
     this.loadOrders();
@@ -41,19 +53,27 @@ export class PurchaseOrderListComponent implements OnInit {
     this.cdr.detectChanges();
 
     this.purchaseOrderService.getOrders().subscribe({
-      next: (orders) => {
+      next: orders => {
         this.orders = [...(orders || [])];
         this.applyFilters();
         this.loading = false;
         this.cdr.detectChanges();
       },
-      error: (error) => {
+      error: error => {
         console.error('Purchase orders load error:', error);
         this.errorMessage = 'Failed to load purchase orders';
         this.loading = false;
         this.cdr.detectChanges();
       }
     });
+  }
+
+  setViewMode(mode: ViewMode): void {
+    this.viewMode = mode;
+
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('purchaseOrderViewMode', mode);
+    }
   }
 
   applyFilters(): void {
@@ -103,7 +123,7 @@ export class PurchaseOrderListComponent implements OnInit {
       next: () => {
         this.loadOrders();
       },
-      error: (error) => {
+      error: error => {
         console.error('Receive order error:', error);
         alert(error.error || 'Failed to receive purchase order');
         this.cdr.detectChanges();
@@ -122,7 +142,7 @@ export class PurchaseOrderListComponent implements OnInit {
       next: () => {
         this.loadOrders();
       },
-      error: (error) => {
+      error: error => {
         console.error('Cancel order error:', error);
         alert(error.error || 'Failed to cancel purchase order');
         this.cdr.detectChanges();

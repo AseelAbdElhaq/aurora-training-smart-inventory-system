@@ -6,9 +6,34 @@
       <p>Manage product suppliers</p>
     </div>
 
-    <a routerLink="/suppliers/add" class="add-btn">
-      Add Supplier
-    </a>
+    <div class="header-actions">
+      <div class="view-toggle">
+        <button
+          type="button"
+          [class.active]="viewMode === 'CARD'"
+          (click)="setViewMode('CARD')"
+        >
+          <span class="material-symbols-rounded">grid_view</span>
+          Card
+        </button>
+
+        <button
+          type="button"
+          [class.active]="viewMode === 'TABLE'"
+          (click)="setViewMode('TABLE')"
+        >
+          <span class="material-symbols-rounded">table_rows</span>
+          Table
+        </button>
+      </div>
+
+      @if (canManage()) {
+        <a routerLink="/suppliers/add" class="add-btn">
+          <span class="material-symbols-rounded">add</span>
+          Add Supplier
+        </a>
+      }
+    </div>
   </div>
 
   @if (loading) {
@@ -27,61 +52,136 @@
 
     } @else {
 
-      <div class="supplier-grid">
+      @if (viewMode === 'CARD') {
+        <div class="supplier-grid">
 
-        @for (supplier of suppliers; track supplier.id) {
+          @for (supplier of suppliers; track supplier.id) {
 
-          <div class="supplier-card">
+            <div class="supplier-card">
 
-            <div class="supplier-top">
-              <div>
-                <h3>{{ supplier.supplierName }}</h3>
-                <p>{{ supplier.contactPerson }}</p>
+              <div class="supplier-top">
+                <div>
+                  <h3>{{ supplier.supplierName }}</h3>
+                  <p>{{ supplier.contactPerson || 'No contact person' }}</p>
+                </div>
+
+                <div class="supplier-icon">
+                  local_shipping
+                </div>
               </div>
 
-              <div class="supplier-icon">
-                local_shipping
+              <div class="supplier-info">
+                <p>
+                  <span>Email:</span>
+                  {{ supplier.email || '-' }}
+                </p>
+
+                <p>
+                  <span>Phone:</span>
+                  {{ supplier.phone || '-' }}
+                </p>
+
+                <p>
+                  <span>Address:</span>
+                  {{ supplier.address || '-' }}
+                </p>
               </div>
+
+              <div class="supplier-actions">
+                @if (canManage() && supplier.id) {
+                  <button
+                    class="edit-btn"
+                    [routerLink]="['/suppliers/edit', supplier.id]"
+                  >
+                    Edit
+                  </button>
+                }
+
+                @if (canDelete() && supplier.id) {
+                  <button
+                    class="delete-btn"
+                    (click)="deleteSupplier(supplier.id)"
+                  >
+                    Delete
+                  </button>
+                }
+              </div>
+
             </div>
 
-            <div class="supplier-info">
-              <p>
-                <span>Email:</span>
-                {{ supplier.email }}
-              </p>
+          }
 
-              <p>
-                <span>Phone:</span>
-                {{ supplier.phone }}
-              </p>
+        </div>
+      } @else {
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Supplier</th>
+                <th>Contact Person</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Address</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
 
-              <p>
-                <span>Address:</span>
-                {{ supplier.address }}
-              </p>
-            </div>
+            <tbody>
+              @for (supplier of suppliers; track supplier.id; let i = $index) {
+                <tr>
+                  <td>{{ i + 1 }}</td>
 
-            <div class="supplier-actions">
-              <button
-                class="edit-btn"
-                [routerLink]="['/suppliers/edit', supplier.id]"
-              >
-                Edit
-              </button>
+                  <td>
+                    <div class="table-supplier">
+                      <div class="table-icon">
+                        <span class="material-symbols-rounded">
+                          local_shipping
+                        </span>
+                      </div>
 
-              <button
-                class="delete-btn"
-                (click)="deleteSupplier(supplier.id)"
-              >
-                Delete
-              </button>
-            </div>
+                      <strong>{{ supplier.supplierName }}</strong>
+                    </div>
+                  </td>
 
-          </div>
+                  <td>{{ supplier.contactPerson || '-' }}</td>
 
-        }
+                  <td>{{ supplier.email || '-' }}</td>
 
-      </div>
+                  <td>{{ supplier.phone || '-' }}</td>
+
+                  <td>{{ supplier.address || '-' }}</td>
+
+                  <td>
+                    <div class="table-actions">
+                      @if (canManage() && supplier.id) {
+                        <a
+                          class="icon-btn"
+                          [routerLink]="['/suppliers/edit', supplier.id]"
+                          title="Edit supplier"
+                        >
+                          <span class="material-symbols-rounded">edit</span>
+                        </a>
+                      }
+
+                      @if (canDelete() && supplier.id) {
+                        <button
+                          class="icon-btn danger"
+                          type="button"
+                          (click)="deleteSupplier(supplier.id)"
+                          title="Delete supplier"
+                        >
+                          <span class="material-symbols-rounded">delete</span>
+                        </button>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
 
     }
 

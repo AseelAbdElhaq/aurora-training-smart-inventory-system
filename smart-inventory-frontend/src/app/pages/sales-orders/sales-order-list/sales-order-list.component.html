@@ -13,7 +13,7 @@
       <p>Manage customer orders, complete sales, and decrease stock automatically.</p>
     </div>
 
-    @if (userRole === 'ADMIN' || userRole === 'INVENTORY_MANAGER') {
+    @if (canAddOrder()) {
       <a routerLink="/sales-orders/add" class="add-btn">
         <span class="material-symbols-rounded">add</span>
         Add Sales Order
@@ -43,6 +43,26 @@
         <option value="CANCELLED">Cancelled</option>
       </select>
     </div>
+
+    <div class="view-toggle">
+      <button
+        type="button"
+        [class.active]="viewMode === 'CARD'"
+        (click)="setViewMode('CARD')"
+      >
+        <span class="material-symbols-rounded">grid_view</span>
+        Card
+      </button>
+
+      <button
+        type="button"
+        [class.active]="viewMode === 'TABLE'"
+        (click)="setViewMode('TABLE')"
+      >
+        <span class="material-symbols-rounded">table_rows</span>
+        Table
+      </button>
+    </div>
   </div>
 
   @if (loading) {
@@ -64,97 +84,195 @@
       <p>No customer sales orders available.</p>
     </div>
   } @else {
-    <div class="orders-grid">
-      @for (order of filteredOrders; track order.id) {
-        <div class="order-card">
-          <div class="card-top">
-            <div>
-              <h3>SO-{{ order.id }}</h3>
-              <p>{{ order.createdAt | date:'mediumDate' }}</p>
+
+    @if (viewMode === 'CARD') {
+      <div class="orders-grid">
+        @for (order of filteredOrders; track order.id) {
+          <div class="order-card">
+            <div class="card-top">
+              <div>
+                <h3>SO-{{ order.id }}</h3>
+                <p>{{ order.createdAt | date:'mediumDate' }}</p>
+              </div>
+
+              <span class="status" [ngClass]="getStatusClass(order.status)">
+                {{ getStatusText(order.status) }}
+              </span>
             </div>
 
-            <span class="status" [ngClass]="getStatusClass(order.status)">
-              {{ getStatusText(order.status) }}
-            </span>
-          </div>
+            <div class="info-row">
+              <span class="material-symbols-rounded">person</span>
 
-          <div class="info-row">
-            <span class="material-symbols-rounded">person</span>
-
-            <div>
-              <small>Customer</small>
-              <strong>{{ order.customerName || 'No customer' }}</strong>
-            </div>
-          </div>
-
-          <div class="info-row">
-            <span class="material-symbols-rounded">warehouse</span>
-
-            <div>
-              <small>Warehouse</small>
-              <strong>{{ order.warehouse?.warehouseName || 'No warehouse' }}</strong>
-            </div>
-          </div>
-
-          <div class="summary">
-            <div>
-              <small>Items</small>
-              <strong>{{ getItemsCount(order) }}</strong>
+              <div>
+                <small>Customer</small>
+                <strong>{{ order.customerName || 'No customer' }}</strong>
+              </div>
             </div>
 
-            <div>
-              <small>Total Amount</small>
-              <strong>${{ order.totalAmount || 0 }}</strong>
+            <div class="info-row">
+              <span class="material-symbols-rounded">warehouse</span>
+
+              <div>
+                <small>Warehouse</small>
+                <strong>{{ order.warehouse?.warehouseName || 'No warehouse' }}</strong>
+              </div>
             </div>
-          </div>
 
-          <div class="actions">
-            <button
-              class="details"
-              type="button"
-              title="View details"
-              (click)="viewDetails(order.id)"
-            >
-              <span class="material-symbols-rounded">visibility</span>
-            </button>
+            <div class="summary">
+              <div>
+                <small>Items</small>
+                <strong>{{ getItemsCount(order) }}</strong>
+              </div>
 
-            @if (order.status === 'PENDING') {
+              <div>
+                <small>Total Amount</small>
+                <strong>${{ order.totalAmount || 0 }}</strong>
+              </div>
+            </div>
+
+            <div class="actions">
               <button
-                class="complete"
+                class="details"
                 type="button"
-                title="Complete order"
-                (click)="completeOrder(order.id)"
+                title="View details"
+                (click)="viewDetails(order.id)"
               >
-                <span class="material-symbols-rounded">check_circle</span>
+                <span class="material-symbols-rounded">visibility</span>
               </button>
 
-              @if (userRole === 'ADMIN' || userRole === 'INVENTORY_MANAGER') {
+              @if (order.status === 'PENDING') {
                 <button
-                  class="edit"
+                  class="complete"
                   type="button"
-                  title="Edit order"
-                  (click)="editOrder(order.id)"
+                  title="Complete order"
+                  (click)="completeOrder(order.id)"
                 >
-                  <span class="material-symbols-rounded">edit</span>
+                  <span class="material-symbols-rounded">check_circle</span>
                 </button>
 
-                <button
-                  class="cancel"
-                  type="button"
-                  title="Cancel order"
-                  (click)="cancelOrder(order.id)"
-                >
-                  <span class="material-symbols-rounded">block</span>
-                </button>
+                @if (canManageOrder()) {
+                  <button
+                    class="edit"
+                    type="button"
+                    title="Edit order"
+                    (click)="editOrder(order.id)"
+                  >
+                    <span class="material-symbols-rounded">edit</span>
+                  </button>
+
+                  <button
+                    class="cancel"
+                    type="button"
+                    title="Cancel order"
+                    (click)="cancelOrder(order.id)"
+                  >
+                    <span class="material-symbols-rounded">block</span>
+                  </button>
+                }
+              } @else {
+                <span class="locked-text">
+                  {{ order.status === 'COMPLETED' ? 'Stock decreased' : 'Order cancelled' }}
+                </span>
               }
-            } @else {
-              <span class="locked-text">
-                {{ order.status === 'COMPLETED' ? 'Stock decreased' : 'Order cancelled' }}
-              </span>
-            }
+            </div>
           </div>
-        </div>
-      }
-    </div>
+        }
+      </div>
+    } @else {
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>SO Number</th>
+              <th>Customer</th>
+              <th>Warehouse</th>
+              <th>Items</th>
+              <th>Total Amount</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (order of filteredOrders; track order.id; let i = $index) {
+              <tr>
+                <td>{{ i + 1 }}</td>
+
+                <td>
+                  <strong>SO-{{ order.id }}</strong>
+                </td>
+
+                <td>{{ order.customerName || '-' }}</td>
+
+                <td>{{ order.warehouse?.warehouseName || '-' }}</td>
+
+                <td>{{ getItemsCount(order) }}</td>
+
+                <td>${{ order.totalAmount || 0 }}</td>
+
+                <td>
+                  <span class="status table-status" [ngClass]="getStatusClass(order.status)">
+                    {{ getStatusText(order.status) }}
+                  </span>
+                </td>
+
+                <td>{{ order.createdAt | date:'mediumDate' }}</td>
+
+                <td>
+                  <div class="table-actions">
+                    <button
+                      class="details"
+                      type="button"
+                      title="View details"
+                      (click)="viewDetails(order.id)"
+                    >
+                      <span class="material-symbols-rounded">visibility</span>
+                    </button>
+
+                    @if (order.status === 'PENDING') {
+                      <button
+                        class="complete"
+                        type="button"
+                        title="Complete order"
+                        (click)="completeOrder(order.id)"
+                      >
+                        <span class="material-symbols-rounded">check_circle</span>
+                      </button>
+
+                      @if (canManageOrder()) {
+                        <button
+                          class="edit"
+                          type="button"
+                          title="Edit order"
+                          (click)="editOrder(order.id)"
+                        >
+                          <span class="material-symbols-rounded">edit</span>
+                        </button>
+
+                        <button
+                          class="cancel"
+                          type="button"
+                          title="Cancel order"
+                          (click)="cancelOrder(order.id)"
+                        >
+                          <span class="material-symbols-rounded">block</span>
+                        </button>
+                      }
+                    } @else {
+                      <span class="locked-text">
+                        {{ order.status === 'COMPLETED' ? 'Stock decreased' : 'Order cancelled' }}
+                      </span>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
   }
 </section>

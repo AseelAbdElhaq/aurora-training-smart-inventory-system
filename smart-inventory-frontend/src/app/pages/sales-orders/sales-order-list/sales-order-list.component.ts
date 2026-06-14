@@ -1,11 +1,19 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {
+  Component,
+  OnInit,
+  ChangeDetectorRef,
+  Inject,
+  PLATFORM_ID
+} from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 
 import {
   SalesOrder,
   SalesOrderService
 } from '../../../services/sales-order.service';
+
+type ViewMode = 'CARD' | 'TABLE';
 
 @Component({
   selector: 'app-sales-order-list',
@@ -19,19 +27,35 @@ export class SalesOrderListComponent implements OnInit {
   orders: SalesOrder[] = [];
   filteredOrders: SalesOrder[] = [];
 
-  userRole = localStorage.getItem('role') || 'ADMIN';
+  userRole = 'ADMIN';
 
   loading = false;
   errorMessage = '';
 
   selectedStatus = 'ALL';
   searchText = '';
+  viewMode: ViewMode = 'CARD';
 
   constructor(
     private salesOrderService: SalesOrderService,
     private router: Router,
-    private cdr: ChangeDetectorRef
-  ) {}
+    private cdr: ChangeDetectorRef,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
+    if (isPlatformBrowser(this.platformId)) {
+      this.userRole =
+        (localStorage.getItem('role') || 'ADMIN')
+          .trim()
+          .toUpperCase()
+          .replace('ROLE_', '');
+
+      const savedView = localStorage.getItem('salesOrderViewMode') as ViewMode | null;
+
+      if (savedView === 'CARD' || savedView === 'TABLE') {
+        this.viewMode = savedView;
+      }
+    }
+  }
 
   ngOnInit(): void {
     this.loadOrders();
@@ -56,6 +80,14 @@ export class SalesOrderListComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  setViewMode(mode: ViewMode): void {
+    this.viewMode = mode;
+
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('salesOrderViewMode', mode);
+    }
   }
 
   applyFilters(): void {
@@ -147,5 +179,13 @@ export class SalesOrderListComponent implements OnInit {
 
   getItemsCount(order: SalesOrder): number {
     return order.items?.length || 0;
+  }
+
+  canAddOrder(): boolean {
+    return this.userRole === 'ADMIN' || this.userRole === 'INVENTORY_MANAGER';
+  }
+
+  canManageOrder(): boolean {
+    return this.userRole === 'ADMIN' || this.userRole === 'INVENTORY_MANAGER';
   }
 }

@@ -33,6 +33,7 @@
   margin: 0;
   font-size: 18px;
   font-weight: 900;
+  color: #111827;
 }
 
 .brand-text p {
@@ -70,7 +71,7 @@
   align-items: center;
   gap: 11px;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 800;
   cursor: pointer;
   box-sizing: border-box;
   box-shadow: none;
@@ -90,6 +91,11 @@
 .menu-icon {
   font-size: 22px;
   color: #4b5563;
+}
+
+.menu-item.active .menu-icon,
+.menu-item:hover .menu-icon {
+  color: #111827;
 }
 
 .menu-label {
@@ -142,6 +148,7 @@
 
 .logout-btn {
   height: 46px;
+  margin-top: 14px;
   border: 1px solid #e5e1d8;
   border-radius: 14px;
   background: #ffffff;
@@ -153,4 +160,9 @@
   justify-content: center;
   gap: 9px;
   cursor: pointer;
+}
+
+.logout-btn:hover {
+  background: #f8f2e3;
+  color: #111827;
 }

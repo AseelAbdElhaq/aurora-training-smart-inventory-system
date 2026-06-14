@@ -1,6 +1,14 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {
+  Component,
+  OnInit,
+  ChangeDetectorRef,
+  Inject,
+  PLATFORM_ID
+} from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { AiInsight, AiInsightService } from '../../../services/ai-insight.service';
+
+type ViewMode = 'CARD' | 'TABLE';
 
 @Component({
   selector: 'app-ai-insight-list',
@@ -13,11 +21,21 @@ export class AiInsightListComponent implements OnInit {
   insights: AiInsight[] = [];
   loading = false;
   errorMessage = '';
+  viewMode: ViewMode = 'CARD';
 
   constructor(
     private aiInsightService: AiInsightService,
-    private cdr: ChangeDetectorRef
-  ) {}
+    private cdr: ChangeDetectorRef,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
+    if (isPlatformBrowser(this.platformId)) {
+      const savedView = localStorage.getItem('aiInsightViewMode') as ViewMode | null;
+
+      if (savedView === 'CARD' || savedView === 'TABLE') {
+        this.viewMode = savedView;
+      }
+    }
+  }
 
   ngOnInit(): void {
     this.loadInsights();
@@ -41,5 +59,13 @@ export class AiInsightListComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  setViewMode(mode: ViewMode): void {
+    this.viewMode = mode;
+
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('aiInsightViewMode', mode);
+    }
   }
 }

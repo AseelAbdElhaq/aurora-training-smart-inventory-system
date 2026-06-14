@@ -1,13 +1,13 @@
 .page {
   padding: 10px;
-    padding-bottom: 65px;
-
+  padding-bottom: 65px;
 }
 
 .page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 18px;
   margin-bottom: 34px;
 }
 
@@ -25,15 +25,65 @@
   font-weight: 600;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 .primary-btn {
+  height: 46px;
   border: none;
   background: #111827;
   color: #ffffff;
-  padding: 14px 24px;
+  padding: 0 20px;
   border-radius: 16px;
   cursor: pointer;
   font-weight: 900;
   box-shadow: 0 12px 24px rgba(17, 24, 39, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.primary-btn span {
+  font-size: 21px;
+}
+
+.view-toggle {
+  height: 46px;
+  padding: 4px;
+  border: 1px solid #e7dfcf;
+  border-radius: 14px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.view-toggle button {
+  height: 36px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.view-toggle button span {
+  font-size: 20px;
+}
+
+.view-toggle button.active {
+  background: #111827;
+  color: #ffffff;
 }
 
 .insights-grid {
@@ -67,6 +117,7 @@
   letter-spacing: 0.4px;
   background: #fff4cc;
   color: #9a6a00;
+  white-space: nowrap;
 }
 
 .insight-card h3 {
@@ -105,6 +156,53 @@
   line-height: 1.5;
 }
 
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #e7dfcf;
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: 0 10px 35px rgba(15, 23, 42, 0.04);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background: #faf7ef;
+}
+
+th {
+  padding: 16px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 900;
+  color: #374151;
+  white-space: nowrap;
+}
+
+td {
+  padding: 16px;
+  border-top: 1px solid #eee8dc;
+  font-size: 14px;
+  font-weight: 700;
+  color: #4b5563;
+  vertical-align: top;
+  line-height: 1.45;
+}
+
+td strong {
+  color: #111827;
+  font-weight: 900;
+}
+
+.table-type {
+  padding: 7px 12px;
+  font-size: 11px;
+}
+
 .empty {
   background: #ffffff;
   border: 1px solid #e7dfcf;
@@ -132,11 +230,26 @@
     gap: 16px;
   }
 
-  .insights-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 22px;
+  .header-actions {
+    width: 100%;
+  }
 
-  margin-bottom: 50px; 
-}
+  .view-toggle {
+    width: 100%;
+  }
+
+  .view-toggle button {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .primary-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .insights-grid {
+    grid-template-columns: 1fr;
+    margin-bottom: 50px;
+  }
 }

@@ -6,87 +6,206 @@
       <p>Manage system users, roles and permissions</p>
     </div>
 
-    <a routerLink="/users/add" class="add-btn">
-      <span class="material-symbols-rounded">person_add</span>
-      Add User
-    </a>
+    <div class="header-actions">
+      <div class="view-toggle">
+        <button
+          type="button"
+          [class.active]="viewMode === 'CARD'"
+          (click)="setViewMode('CARD')"
+        >
+          <span class="material-symbols-rounded">grid_view</span>
+          Card
+        </button>
+
+        <button
+          type="button"
+          [class.active]="viewMode === 'TABLE'"
+          (click)="setViewMode('TABLE')"
+        >
+          <span class="material-symbols-rounded">table_rows</span>
+          Table
+        </button>
+      </div>
+
+      <a routerLink="/users/add" class="add-btn">
+        <span class="material-symbols-rounded">person_add</span>
+        Add User
+      </a>
+    </div>
   </div>
 
   @if (loading) {
-  <div class="empty-state">
-    Loading users...
-  </div>
-  } @else {
-
-  @if (users.length === 0) {
-  <div class="empty-state">
-    No users found
-  </div>
-  } @else {
-
-  <div class="users-grid">
-    @for (user of users; track user.id) {
-
-    <div class="user-card" [class.admin-card]="user.roleId === 1">
-      @if (user.roleId === 1) {
-      <div class="admin-ribbon">
-        <span class="material-symbols-rounded">admin_panel_settings</span>
-        Main System Admin
-      </div>
-      }
-
-      <div class="user-header">
-        <div class="avatar" [class.admin-avatar]="user.roleId === 1" [class.inventory-avatar]="user.roleId === 2"
-          [class.purchase-avatar]="user.roleId === 3" [class.employee-avatar]="user.roleId === 4">
-          {{ getInitial(user.fullName) }}
-        </div>
-
-        <div class="user-details">
-          <h3>{{ getDisplayName(user) }}</h3>
-          <span>{{ user.username || 'No username' }}</span>
-        </div>
-
-        <div class="role-badge" [class.admin]="user.roleId === 1" [class.inventory]="user.roleId === 2"
-          [class.purchase]="user.roleId === 3" [class.employee]="user.roleId === 4">
-          {{ roleName(user.roleId) }}
-        </div>
-      </div>
-
-      <div class="info-grid">
-
-        <div class="info-box">
-          <small>Email</small>
-          <strong>{{ getDisplayEmail(user) }}</strong>
-        </div>
-
-        <div class="info-box">
-          <small>Phone</small>
-          <strong>{{ user.phone || 'No phone' }}</strong>
-        </div>
-
-        <div class="info-box">
-          <small>Role</small>
-          <strong>{{ roleName(user.roleId) }}</strong>
-        </div>
-
-      </div>
-
-      <div class="action-row">
-        <button class="edit-btn" [routerLink]="['/users/edit', user.id]" title="Edit user">
-          <span class="material-symbols-rounded">edit</span>
-        </button>
-
-        <button class="delete-btn" (click)="deleteUser(user.id)" title="Remove user">
-          <span class="material-symbols-rounded">delete</span>
-        </button>
-      </div>
-
+    <div class="empty-state">
+      Loading users...
     </div>
+  } @else if (errorMessage) {
+    <div class="empty-state error-state">
+      {{ errorMessage }}
+    </div>
+  } @else if (users.length === 0) {
+    <div class="empty-state">
+      No users found
+    </div>
+  } @else {
 
+    @if (viewMode === 'CARD') {
+      <div class="users-grid">
+        @for (user of users; track user.id) {
+
+          <div class="user-card" [class.admin-card]="user.roleId === 1">
+            @if (user.roleId === 1) {
+              <div class="admin-ribbon">
+                <span class="material-symbols-rounded">admin_panel_settings</span>
+                Main System Admin
+              </div>
+            }
+
+            <div class="user-header">
+              <div
+                class="avatar"
+                [class.admin-avatar]="user.roleId === 1"
+                [class.inventory-avatar]="user.roleId === 2"
+                [class.purchase-avatar]="user.roleId === 3"
+                [class.employee-avatar]="user.roleId === 4"
+              >
+                {{ getInitial(user.fullName) }}
+              </div>
+
+              <div class="user-details">
+                <h3>{{ getDisplayName(user) }}</h3>
+                <span>{{ user.username || 'No username' }}</span>
+              </div>
+
+              <div
+                class="role-badge"
+                [class.admin]="user.roleId === 1"
+                [class.inventory]="user.roleId === 2"
+                [class.purchase]="user.roleId === 3"
+                [class.employee]="user.roleId === 4"
+              >
+                {{ roleName(user.roleId) }}
+              </div>
+            </div>
+
+            <div class="info-grid">
+              <div class="info-box">
+                <small>Email</small>
+                <strong>{{ getDisplayEmail(user) }}</strong>
+              </div>
+
+              <div class="info-box">
+                <small>Phone</small>
+                <strong>{{ user.phone || 'No phone' }}</strong>
+              </div>
+
+              <div class="info-box">
+                <small>Role</small>
+                <strong>{{ roleName(user.roleId) }}</strong>
+              </div>
+            </div>
+
+            <div class="action-row">
+              <button
+                class="edit-btn"
+                [routerLink]="['/users/edit', user.id]"
+                title="Edit user"
+              >
+                <span class="material-symbols-rounded">edit</span>
+              </button>
+
+              <button
+                class="delete-btn"
+                (click)="deleteUser(user.id)"
+                title="Remove user"
+              >
+                <span class="material-symbols-rounded">delete</span>
+              </button>
+            </div>
+          </div>
+
+        }
+      </div>
+    } @else {
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>User</th>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (user of users; track user.id; let i = $index) {
+              <tr [class.admin-row]="user.roleId === 1">
+                <td>{{ i + 1 }}</td>
+
+                <td>
+                  <div class="table-user">
+                    <div
+                      class="table-avatar"
+                      [class.admin-avatar]="user.roleId === 1"
+                      [class.inventory-avatar]="user.roleId === 2"
+                      [class.purchase-avatar]="user.roleId === 3"
+                      [class.employee-avatar]="user.roleId === 4"
+                    >
+                      {{ getInitial(user.fullName) }}
+                    </div>
+
+                    <strong>{{ getDisplayName(user) }}</strong>
+                  </div>
+                </td>
+
+                <td>{{ user.username || '-' }}</td>
+
+                <td>{{ getDisplayEmail(user) }}</td>
+
+                <td>{{ user.phone || '-' }}</td>
+
+                <td>
+                  <span class="role-badge table-role" [ngClass]="getRoleClass(user.roleId)">
+                    {{ roleName(user.roleId) }}
+                  </span>
+                </td>
+
+                <td>
+                  <span class="status-badge">
+                    {{ user.isActive === false ? 'Inactive' : 'Active' }}
+                  </span>
+                </td>
+
+                <td>
+                  <div class="table-actions">
+                    <a
+                      class="icon-btn"
+                      [routerLink]="['/users/edit', user.id]"
+                      title="Edit user"
+                    >
+                      <span class="material-symbols-rounded">edit</span>
+                    </a>
+
+                    <button
+                      class="icon-btn danger"
+                      type="button"
+                      (click)="deleteUser(user.id)"
+                      title="Remove user"
+                    >
+                      <span class="material-symbols-rounded">delete</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     }
-  </div>
-
-  }
 
   }
 

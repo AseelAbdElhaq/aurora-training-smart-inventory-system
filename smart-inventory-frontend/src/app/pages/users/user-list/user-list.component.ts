@@ -1,11 +1,19 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {
+  Component,
+  OnInit,
+  ChangeDetectorRef,
+  Inject,
+  PLATFORM_ID
+} from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
 import {
   User,
   UserService
 } from '../../../services/user.service';
+
+type ViewMode = 'CARD' | 'TABLE';
 
 @Component({
   selector: 'app-user-list',
@@ -15,15 +23,24 @@ import {
   styleUrls: ['./user-list.component.css']
 })
 export class UserListComponent implements OnInit {
-
   users: User[] = [];
   loading = false;
   errorMessage = '';
+  viewMode: ViewMode = 'CARD';
 
   constructor(
     private userService: UserService,
-    private cdr: ChangeDetectorRef
-  ) {}
+    private cdr: ChangeDetectorRef,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
+    if (isPlatformBrowser(this.platformId)) {
+      const savedView = localStorage.getItem('userViewMode') as ViewMode | null;
+
+      if (savedView === 'CARD' || savedView === 'TABLE') {
+        this.viewMode = savedView;
+      }
+    }
+  }
 
   ngOnInit(): void {
     this.loadUsers();
@@ -50,6 +67,14 @@ export class UserListComponent implements OnInit {
     });
   }
 
+  setViewMode(mode: ViewMode): void {
+    this.viewMode = mode;
+
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('userViewMode', mode);
+    }
+  }
+
   roleName(roleId?: number): string {
     if (roleId === 1) return 'ADMIN';
     if (roleId === 2) return 'INVENTORY MANAGER';
@@ -57,6 +82,15 @@ export class UserListComponent implements OnInit {
     if (roleId === 4) return 'EMPLOYEE';
 
     return 'UNKNOWN';
+  }
+
+  getRoleClass(roleId?: number): string {
+    if (roleId === 1) return 'admin';
+    if (roleId === 2) return 'inventory';
+    if (roleId === 3) return 'purchase';
+    if (roleId === 4) return 'employee';
+
+    return 'employee';
   }
 
   getDisplayName(user: User): string {

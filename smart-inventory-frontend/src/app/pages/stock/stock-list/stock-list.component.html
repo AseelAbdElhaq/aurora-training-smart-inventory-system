@@ -7,6 +7,26 @@
     </div>
 
     <div class="header-actions">
+      <div class="view-toggle">
+        <button
+          type="button"
+          [class.active]="viewMode === 'CARD'"
+          (click)="setViewMode('CARD')"
+        >
+          <span class="material-symbols-rounded">grid_view</span>
+          Card
+        </button>
+
+        <button
+          type="button"
+          [class.active]="viewMode === 'TABLE'"
+          (click)="setViewMode('TABLE')"
+        >
+          <span class="material-symbols-rounded">table_rows</span>
+          Table
+        </button>
+      </div>
+
       @if (canAddStock()) {
         <a routerLink="/stock/add" class="add-btn">
           Add Stock
@@ -37,62 +57,133 @@
 
     } @else {
 
-      <div class="stock-grid">
+      @if (viewMode === 'CARD') {
+        <div class="stock-grid">
 
-        @for (stock of stocks; track stock.id) {
+          @for (stock of stocks; track stock.id) {
 
-          <div class="stock-card">
+            <div class="stock-card">
 
-            <div class="stock-top">
-              <div>
-                <h3>{{ stock.product?.productName }}</h3>
-                <p>{{ stock.warehouse?.warehouseName }}</p>
-                <div
-  class="status-badge"
-  [class.low]="stock.quantity <= 5"
-  [class.medium]="stock.quantity > 5 && stock.quantity <= 20"
-  [class.high]="stock.quantity > 20"
->
-  @if (stock.quantity <= 5) {
-    Low Stock
-  } @else if (stock.quantity <= 20) {
-    Medium Stock
-  } @else {
-    Healthy Stock
-  }
-</div>
+              <div class="stock-top">
+                <div>
+                  <h3>{{ stock.product?.productName || 'No Product' }}</h3>
+                  <p>{{ stock.warehouse?.warehouseName || 'No Warehouse' }}</p>
+
+                  <div
+                    class="status-badge"
+                    [class.low]="stock.quantity <= 5"
+                    [class.medium]="stock.quantity > 5 && stock.quantity <= 20"
+                    [class.high]="stock.quantity > 20"
+                  >
+                    {{ getStockStatus(stock.quantity) }}
+                  </div>
+                </div>
+
+                <div class="qty-badge">
+                  {{ stock.quantity || 0 }}
+                </div>
               </div>
 
-              <div class="qty-badge">
-                {{ stock.quantity }}
+              <div class="stock-actions">
+                @if (canEditStock()) {
+                  <button
+                    class="edit-btn"
+                    [routerLink]="['/stock/edit', stock.id]"
+                  >
+                    Edit
+                  </button>
+                }
+
+                @if (canDeleteStock()) {
+                  <button
+                    class="delete-btn"
+                    (click)="deleteStock(stock.id)"
+                  >
+                    Delete
+                  </button>
+                }
               </div>
+
             </div>
 
-            <div class="stock-actions">
-              @if (canEditStock()) {
-                <button
-                  class="edit-btn"
-                  [routerLink]="['/stock/edit', stock.id]"
-                >
-                  Edit
-                </button>
+          }
+
+        </div>
+      } @else {
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Product</th>
+                <th>Warehouse</th>
+                <th>Quantity</th>
+                <th>Status</th>
+                <th>Updated At</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (stock of stocks; track stock.id; let i = $index) {
+                <tr>
+                  <td>{{ i + 1 }}</td>
+
+                  <td>
+                    <strong>{{ stock.product?.productName || 'No Product' }}</strong>
+                  </td>
+
+                  <td>{{ stock.warehouse?.warehouseName || 'No Warehouse' }}</td>
+
+                  <td>
+                    <span class="table-qty">{{ stock.quantity || 0 }}</span>
+                  </td>
+
+                  <td>
+                    <span
+                      class="status-badge table-status"
+                      [class.low]="stock.quantity <= 5"
+                      [class.medium]="stock.quantity > 5 && stock.quantity <= 20"
+                      [class.high]="stock.quantity > 20"
+                    >
+                      {{ getStockStatus(stock.quantity) }}
+                    </span>
+                  </td>
+
+                  <td>
+                    {{ stock.updatedAt || '-' }}
+                  </td>
+
+                  <td>
+                    <div class="table-actions">
+                      @if (canEditStock()) {
+                        <a
+                          class="icon-btn"
+                          [routerLink]="['/stock/edit', stock.id]"
+                          title="Edit stock"
+                        >
+                          <span class="material-symbols-rounded">edit</span>
+                        </a>
+                      }
+
+                      @if (canDeleteStock()) {
+                        <button
+                          class="icon-btn danger"
+                          type="button"
+                          (click)="deleteStock(stock.id)"
+                          title="Delete stock"
+                        >
+                          <span class="material-symbols-rounded">delete</span>
+                        </button>
+                      }
+                    </div>
+                  </td>
+                </tr>
               }
-
-              @if (canDeleteStock()) {
-                <button
-                  class="delete-btn"
-                  (click)="deleteStock(stock.id)"
-                >
-                  Delete
-                </button>
-              }
-            </div>
-
-          </div>
-
-        }
-
-      </div>
+            </tbody>
+          </table>
+        </div>
+      }
 
     }
 

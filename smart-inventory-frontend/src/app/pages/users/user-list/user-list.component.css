@@ -8,6 +8,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 28px;
+  gap: 18px;
 }
 
 .page-header h2 {
@@ -23,6 +24,13 @@
   color: #6b7280;
   font-size: 17px;
   font-weight: 600;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .add-btn {
@@ -41,6 +49,41 @@
 
 .add-btn span {
   font-size: 23px;
+}
+
+.view-toggle {
+  height: 58px;
+  padding: 5px;
+  border: 1px solid #e5e1d8;
+  border-radius: 18px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.view-toggle button {
+  height: 46px;
+  padding: 0 15px;
+  border: none;
+  border-radius: 14px;
+  background: transparent;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.view-toggle button span {
+  font-size: 20px;
+}
+
+.view-toggle button.active {
+  background: #111827;
+  color: #ffffff;
 }
 
 .users-grid {
@@ -84,8 +127,9 @@
 }
 
 .admin-avatar {
-  background: #fee2e2;
-  color: #b91c1c;
+  background: #111827;
+  color: #f5c542;
+  box-shadow: 0 10px 22px rgba(17, 24, 39, 0.18);
 }
 
 .inventory-avatar {
@@ -139,8 +183,8 @@
 }
 
 .role-badge.admin {
-  background: #fee2e2;
-  color: #b91c1c;
+  background: #111827;
+  color: #f5c542;
 }
 
 .role-badge.inventory {
@@ -222,16 +266,6 @@
   transform: translateY(-2px);
 }
 
-.empty-state {
-  padding: 120px 20px;
-  background: #ffffff;
-  border: 1px dashed #d6d0c3;
-  border-radius: 28px;
-  text-align: center;
-  color: #6b7280;
-  font-size: 18px;
-  font-weight: 800;
-}
 .admin-card {
   border: 2px solid #f5c542;
   background: linear-gradient(180deg, #ffffff 0%, #fff9e8 100%);
@@ -259,21 +293,162 @@
   color: #f5c542;
 }
 
-.admin-avatar {
-  background: #111827;
-  color: #f5c542;
-  box-shadow: 0 10px 22px rgba(17, 24, 39, 0.18);
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #e7dfcf;
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 10px 35px rgba(15, 23, 42, 0.04);
 }
 
-.role-badge.admin {
-  background: #111827;
-  color: #f5c542;
+table {
+  width: 100%;
+  border-collapse: collapse;
 }
+
+thead {
+  background: #faf7ef;
+}
+
+th {
+  padding: 16px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 900;
+  color: #374151;
+  white-space: nowrap;
+}
+
+td {
+  padding: 16px;
+  border-top: 1px solid #eee8dc;
+  font-size: 14px;
+  font-weight: 700;
+  color: #4b5563;
+  vertical-align: middle;
+}
+
+td strong {
+  color: #111827;
+  font-weight: 900;
+}
+
+.admin-row {
+  background: #fff9e8;
+}
+
+.table-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.table-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+  font-size: 17px;
+  font-weight: 900;
+  background: #f5d16a;
+  color: #111827;
+  flex-shrink: 0;
+}
+
+.table-role {
+  grid-column: auto;
+  margin-top: 0;
+  white-space: nowrap;
+}
+
+.status-badge {
+  display: inline-flex;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #166534;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.table-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 11px;
+  background: #f8f5ed;
+  color: #374151;
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.icon-btn span {
+  font-size: 21px;
+}
+
+.icon-btn:hover {
+  background: #f4ecd6;
+  color: #111827;
+}
+
+.icon-btn.danger {
+  color: #dc2626;
+}
+
+.icon-btn.danger:hover {
+  background: #fee2e2;
+}
+
+.empty-state {
+  padding: 120px 20px;
+  background: #ffffff;
+  border: 1px dashed #d6d0c3;
+  border-radius: 28px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.error-state {
+  color: #b91c1c;
+}
+
 @media (max-width: 900px) {
   .page-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 18px;
+  }
+
+  .header-actions {
+    width: 100%;
+  }
+
+  .view-toggle {
+    width: 100%;
+  }
+
+  .view-toggle button {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .add-btn {
+    width: 100%;
+    justify-content: center;
   }
 
   .users-grid {

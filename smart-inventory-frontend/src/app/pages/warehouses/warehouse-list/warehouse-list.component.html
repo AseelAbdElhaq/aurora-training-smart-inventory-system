@@ -10,12 +10,34 @@
       </p>
     </div>
 
-    @if (canManage()) {
-      <a routerLink="/warehouses/add" class="add-btn">
-        <span class="material-symbols-rounded">add</span>
-        Add Warehouse
-      </a>
-    }
+    <div class="header-actions">
+      <div class="view-toggle">
+        <button
+          type="button"
+          [class.active]="viewMode === 'CARD'"
+          (click)="setViewMode('CARD')"
+        >
+          <span class="material-symbols-rounded">grid_view</span>
+          Card
+        </button>
+
+        <button
+          type="button"
+          [class.active]="viewMode === 'TABLE'"
+          (click)="setViewMode('TABLE')"
+        >
+          <span class="material-symbols-rounded">table_rows</span>
+          Table
+        </button>
+      </div>
+
+      @if (canManage()) {
+        <a routerLink="/warehouses/add" class="add-btn">
+          <span class="material-symbols-rounded">add</span>
+          Add Warehouse
+        </a>
+      }
+    </div>
   </div>
 
   <div class="warehouse-card">
@@ -31,81 +53,168 @@
           <p>Add your first warehouse to start managing capacity.</p>
         </div>
       } @else {
-        <div class="warehouse-grid">
-          @for (warehouse of warehouses; track warehouse.warehouseName) {
-            <div class="warehouse-item">
-              <div class="warehouse-top">
-                <div class="warehouse-icon">
-                  <span class="material-symbols-rounded">warehouse</span>
+
+        @if (viewMode === 'CARD') {
+          <div class="warehouse-grid">
+            @for (warehouse of warehouses; track warehouse.id) {
+              <div class="warehouse-item">
+                <div class="warehouse-top">
+                  <div class="warehouse-icon">
+                    <span class="material-symbols-rounded">warehouse</span>
+                  </div>
+
+                  <div>
+                    <h3>{{ warehouse.warehouseName }}</h3>
+
+                    <p>{{ warehouse.location || 'No location added' }}</p>
+                  </div>
                 </div>
 
-                <div>
-                  <h3>{{ warehouse.warehouseName }}</h3>
+                <div class="capacity-info">
+                  <div>
+                    <span>Total Capacity</span>
 
-                  <p>{{ warehouse.location || 'No location added' }}</p>
+                    <strong>{{ warehouse.capacity || 0 }}</strong>
+                  </div>
+
+                  <div>
+                    <span>Used</span>
+
+                    <strong>{{ warehouse.currentCapacity || 0 }}</strong>
+                  </div>
+
+                  <div>
+                    <span>Available</span>
+
+                    <strong>{{ getAvailableCapacity(warehouse) }}</strong>
+                  </div>
+                </div>
+
+                <div class="progress-area">
+                  <div class="progress-top">
+                    <span>Capacity Usage</span>
+
+                    <b>{{ getUsedPercentage(warehouse) }}%</b>
+                  </div>
+
+                  <div class="progress-bar">
+                    <div
+                      class="progress-fill"
+                      [style.width.%]="getUsedPercentage(warehouse)"
+                    ></div>
+                  </div>
+                </div>
+
+                <div class="actions">
+                  @if (canManage() && warehouse.id) {
+                    <a
+                      class="edit-btn"
+                      [routerLink]="['/warehouses/edit', warehouse.id]"
+                    >
+                      <span class="material-symbols-rounded">edit</span>
+                      <span>Edit</span>
+                    </a>
+                  }
+
+                  @if (canDelete() && warehouse.id) {
+                    <button
+                      class="delete-btn"
+                      type="button"
+                      (click)="deleteWarehouse(warehouse.id)"
+                    >
+                      <span class="material-symbols-rounded">delete</span>
+                      <span>Delete</span>
+                    </button>
+                  }
                 </div>
               </div>
+            }
+          </div>
+        } @else {
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Warehouse</th>
+                  <th>Location</th>
+                  <th>Total Capacity</th>
+                  <th>Used</th>
+                  <th>Available</th>
+                  <th>Usage</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
 
-              <div class="capacity-info">
-                <div>
-                  <span>Total Capacity</span>
+              <tbody>
+                @for (warehouse of warehouses; track warehouse.id; let i = $index) {
+                  <tr>
+                    <td>{{ i + 1 }}</td>
 
-                  <strong>{{ warehouse.capacity }}</strong>
-                </div>
+                    <td>
+                      <div class="table-warehouse">
+                        <div class="table-icon">
+                          <span class="material-symbols-rounded">warehouse</span>
+                        </div>
 
-                <div>
-                  <span>Used</span>
+                        <strong>{{ warehouse.warehouseName }}</strong>
+                      </div>
+                    </td>
 
-                  <strong>{{ warehouse.currentCapacity || 0 }}</strong>
-                </div>
+                    <td>{{ warehouse.location || '-' }}</td>
 
-                <div>
-                  <span>Available</span>
+                    <td>{{ warehouse.capacity || 0 }}</td>
 
-                  <strong>{{ getAvailableCapacity(warehouse) }}</strong>
-                </div>
-              </div>
+                    <td>{{ warehouse.currentCapacity || 0 }}</td>
 
-              <div class="progress-area">
-                <div class="progress-top">
-                  <span>Capacity Usage</span>
+                    <td>{{ getAvailableCapacity(warehouse) }}</td>
 
-                  <b>{{ getUsedPercentage(warehouse) }}%</b>
-                </div>
+                    <td>
+                      <div class="usage-cell">
+                        <span class="usage-badge">
+                          {{ getUsedPercentage(warehouse) }}%
+                        </span>
 
-                <div class="progress-bar">
-                  <div
-                    class="progress-fill"
-                    [style.width.%]="getUsedPercentage(warehouse)"
-                  ></div>
-                </div>
-              </div>
+                        <div class="mini-progress">
+                          <div
+                            class="mini-progress-fill"
+                            [style.width.%]="getUsedPercentage(warehouse)"
+                          ></div>
+                        </div>
+                      </div>
+                    </td>
 
-              <div class="actions">
-                @if (canManage() && warehouse.id) {
-                  <a
-                    class="edit-btn"
-                    [routerLink]="['/warehouses/edit', warehouse.id]"
-                  >
-                    <span class="material-symbols-rounded">edit</span>
-                    <span>Edit</span>
-                  </a>
+                    <td>
+                      <div class="table-actions">
+                        @if (canManage() && warehouse.id) {
+                          <a
+                            class="icon-btn"
+                            [routerLink]="['/warehouses/edit', warehouse.id]"
+                            title="Edit warehouse"
+                          >
+                            <span class="material-symbols-rounded">edit</span>
+                          </a>
+                        }
+
+                        @if (canDelete() && warehouse.id) {
+                          <button
+                            class="icon-btn danger"
+                            type="button"
+                            (click)="deleteWarehouse(warehouse.id)"
+                            title="Delete warehouse"
+                          >
+                            <span class="material-symbols-rounded">delete</span>
+                          </button>
+                        }
+                      </div>
+                    </td>
+                  </tr>
                 }
+              </tbody>
+            </table>
+          </div>
+        }
 
-                @if (canDelete() && warehouse.id) {
-                  <button
-                    class="delete-btn"
-                    type="button"
-                    (click)="deleteWarehouse(warehouse.id)"
-                  >
-                    <span class="material-symbols-rounded">delete</span>
-                    <span>Delete</span>
-                  </button>
-                }
-              </div>
-            </div>
-          }
-        </div>
       }
     }
   </div>

@@ -29,52 +29,144 @@
           (input)="searchCategories()"
         />
       </div>
+
+      <div class="view-toggle">
+        <button
+          type="button"
+          [class.active]="viewMode === 'CARD'"
+          (click)="setViewMode('CARD')"
+        >
+          <span class="material-symbols-rounded">grid_view</span>
+          Card
+        </button>
+
+        <button
+          type="button"
+          [class.active]="viewMode === 'TABLE'"
+          (click)="setViewMode('TABLE')"
+        >
+          <span class="material-symbols-rounded">table_rows</span>
+          Table
+        </button>
+      </div>
     </div>
 
     @if (loading) {
-      <p class="empty-message">Loading categories...</p>
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <div>
+          <h3>Loading Categories</h3>
+          <p>Please wait while category data is loading.</p>
+        </div>
+      </div>
     } @else {
       @if (categories.length === 0) {
         <p class="empty-message">No categories found.</p>
       } @else {
-        <div class="category-grid">
-          @for (category of categories; track category.categoryName) {
-            <div class="category-card">
-              <div class="category-icon">
-                <span class="material-symbols-rounded">category</span>
+
+        @if (viewMode === 'CARD') {
+          <div class="category-grid">
+            @for (category of categories; track category.id) {
+              <div class="category-card">
+                <div class="category-icon">
+                  <span class="material-symbols-rounded">category</span>
+                </div>
+
+                <div class="category-info">
+                  <h3>{{ category.categoryName }}</h3>
+                  <p>{{ category.description || 'No description available.' }}</p>
+                </div>
+
+                <div class="actions">
+                  @if (canManage() && category.id) {
+                    <a
+                      class="icon-btn"
+                      [routerLink]="['/categories/edit', category.id]"
+                      title="Edit category"
+                    >
+                      <span class="material-symbols-rounded">edit</span>
+                    </a>
+                  }
+
+                  @if (canDelete() && category.id) {
+                    <button
+                      class="icon-btn danger"
+                      type="button"
+                      (click)="deleteCategory(category.id)"
+                      title="Delete category"
+                    >
+                      <span class="material-symbols-rounded">delete</span>
+                    </button>
+                  }
+                </div>
               </div>
+            }
+          </div>
+        } @else {
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Category Name</th>
+                  <th>Description</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
 
-              <div class="category-info">
-                <h3>{{ category.categoryName }}</h3>
+              <tbody>
+                @for (category of categories; track category.id; let i = $index) {
+                  <tr>
+                    <td>{{ i + 1 }}</td>
 
-                <p>
-                  {{ category.description || 'No description available.' }}
-                </p>
-              </div>
+                    <td>
+                      <div class="table-name">
+                        <div class="mini-icon">
+                          <span class="material-symbols-rounded">category</span>
+                        </div>
 
-              <div class="actions">
-                @if (canManage() && category.id) {
-                  <a
-                    class="icon-btn"
-                    [routerLink]="['/categories/edit', category.id]"
-                  >
-                    <span class="material-symbols-rounded">edit</span>
-                  </a>
+                        <strong>{{ category.categoryName }}</strong>
+                      </div>
+                    </td>
+
+                    <td>{{ category.description || 'No description available.' }}</td>
+
+                    <td>
+                      <span class="status-badge">Active</span>
+                    </td>
+
+                    <td>
+                      <div class="actions">
+                        @if (canManage() && category.id) {
+                          <a
+                            class="icon-btn"
+                            [routerLink]="['/categories/edit', category.id]"
+                            title="Edit category"
+                          >
+                            <span class="material-symbols-rounded">edit</span>
+                          </a>
+                        }
+
+                        @if (canDelete() && category.id) {
+                          <button
+                            class="icon-btn danger"
+                            type="button"
+                            (click)="deleteCategory(category.id)"
+                            title="Delete category"
+                          >
+                            <span class="material-symbols-rounded">delete</span>
+                          </button>
+                        }
+                      </div>
+                    </td>
+                  </tr>
                 }
+              </tbody>
+            </table>
+          </div>
+        }
 
-                @if (canDelete() && category.id) {
-                  <button
-                    class="icon-btn danger"
-                    type="button"
-                    (click)="deleteCategory(category.id)"
-                  >
-                    <span class="material-symbols-rounded">delete</span>
-                  </button>
-                }
-              </div>
-            </div>
-          }
-        </div>
       }
     }
   </div>
