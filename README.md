@@ -97,16 +97,47 @@ http://localhost:4200
 
 ---
 
-## 📸 Screenshots
+## 📸 Application Preview
 
-You can add screenshots of the application here, such as:
+### Dashboard
 
-- Login Page
-- Dashboard
-- Products
-- Categories
-- Suppliers
+![Dashboard](screenshots/dashboard.png)
 
+---
+
+### Overview
+
+![Overview](screenshots/Overview.png)
+
+---
+
+### AI Assistant
+
+![AI Assistant](screenshots/Ai.png)
+
+---
+
+### Warehouse Management
+
+![Warehouse Management](screenshots/warehouseManagement.png)
+
+---
+
+### Stock Management
+
+![Stock Management](screenshots/stouckManagement.png)
+
+---
+
+### Purchase Order
+
+![Purchase Order](screenshots/purchaseOrder.png)
+
+---
+
+### Reports
+
+![Reports](screenshots/Reports.png)
 ---
 
 ## 🌱 What I Learned
