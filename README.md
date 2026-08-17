@@ -99,46 +99,13 @@ http://localhost:4200
 
 ## 📸 Application Preview
 
-### Dashboard
-
-![Dashboard](screenshots/dashboard.png)
-
----
-
-### Overview
-
-![Overview](screenshots/Overview.png)
-
----
-
-### AI Assistant
-
-![AI Assistant](screenshots/Ai.png)
-
----
-
-### Warehouse Management
-
-![Warehouse Management](screenshots/warehouseManagement.png)
-
----
-
-### Stock Management
-
-![Stock Management](screenshots/stouckManagement.png)
-
----
-
-### Purchase Order
-
-![Purchase Order](screenshots/purchaseOrder.png)
-
----
-
-### Reports
-
-![Reports](screenshots/Reports.png)
----
+![Dashboard](./screenshots/dashboard.png)
+![Overview](./screenshots/Overview.png)
+![AI Assistant](./screenshots/Ai.png)
+![Reports](./screenshots/Reports.png)
+![Purchase Order](./screenshots/purchaseOrder.png)
+![Stock Management](./screenshots/stouckManagment.png)
+![Warehouse Management](./screenshots/warehouseManagment.png)
 
 ## 🌱 What I Learned
 
